@@ -1,0 +1,194 @@
+<title>Island Hopper Vanuatu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Itim&display=swap">
+<style>
+/* Layout: a handheld console in Yasur-lava red. Screen in the middle, D-pad and buttons flank it on wide screens and sit below it on phones. Single deliberate night-sea look. */
+:root{
+  --night:#0d1721; --night-2:#14273a; --shell:#c4513a; --shell-dark:#7f2f22; --shell-light:#e2785a;
+  --bezel:#1f222a; --sand:#f2dba6; --sand-dark:#cbb077; --ink:#1b1d26; --paper:#fff7e3; --paper-2:#f3e4bd;
+  --lagoon:#38b7a9; --muted:#8a8070;
+  --f-display:'Pixelify Sans','Itim',system-ui,sans-serif;
+  --f-body:'Pixelify Sans','Itim',system-ui,sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  margin:0; background:var(--night); color:var(--paper); font-family:var(--f-body);
+  background-image:radial-gradient(circle at 20% 10%, rgba(56,183,169,.10), transparent 40%), radial-gradient(circle at 85% 90%, rgba(196,81,58,.14), transparent 45%);
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); padding-block:14px;
+  box-sizing:border-box; overflow-x:hidden; -webkit-user-select:none; user-select:none; touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:1120px; margin:0 auto; display:flex; flex-direction:column; gap:12px; align-items:center}
+.console{
+  width:100%; max-width:560px; box-sizing:border-box;
+  display:grid; grid-template-columns:1fr 1fr; grid-template-areas:"scr scr" "l r"; gap:18px 10px; align-items:center;
+  background:linear-gradient(160deg, var(--shell-light), var(--shell) 35%, var(--shell-dark));
+  border-radius:22px 22px 44px 44px; padding:14px 14px 22px;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.25), inset 0 -6px 0 rgba(0,0,0,.25), 0 18px 40px rgba(0,0,0,.45);
+}
+.scr{grid-area:scr; min-width:0; width:100%; justify-self:center}
+.bezel{background:var(--bezel); padding:12px 12px 8px; border-radius:10px 10px 26px 10px; box-shadow:inset 0 2px 6px rgba(0,0,0,.6)}
+.brand{display:flex; justify-content:space-between; align-items:baseline; margin-top:6px; color:#9aa0ad; font-size:12px; letter-spacing:.14em}
+.brand b{color:var(--sand); font-weight:700}
+.brand .led{display:inline-block; width:7px; height:7px; border-radius:50%; background:#ff5a4a; box-shadow:0 0 8px #ff5a4a; margin-right:6px; vertical-align:middle}
+.screen{position:relative; width:100%; aspect-ratio:3/2; max-width:100%; background:#000; overflow:hidden; container-type:inline-size; border-radius:3px}
+#game{position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; image-rendering:crisp-edges; display:block}
+
+.lpad{grid-area:l; justify-self:center}
+.rpad{grid-area:r; justify-self:center; display:flex; flex-direction:column; align-items:center; gap:14px}
+.dpad{position:relative; width:128px; height:128px; touch-action:none; cursor:pointer}
+.dpad::before,.dpad::after{content:""; position:absolute; background:#23252d; border-radius:6px; box-shadow:inset 0 -3px 0 rgba(0,0,0,.4), 0 3px 0 rgba(0,0,0,.3)}
+.dpad::before{left:0; right:0; top:42px; height:44px}
+.dpad::after{top:0; bottom:0; left:42px; width:44px}
+.dpad i{position:absolute; z-index:1; width:0; height:0; border:7px solid transparent; pointer-events:none; opacity:.55}
+.dpad .u{left:57px; top:10px; border-bottom-color:#9aa0ad}
+.dpad .d{left:57px; bottom:10px; border-top-color:#9aa0ad}
+.dpad .lft{top:57px; left:10px; border-right-color:#9aa0ad}
+.dpad .rt{top:57px; right:10px; border-left-color:#9aa0ad}
+.dpad.on-up .u,.dpad.on-down .d,.dpad.on-left .lft,.dpad.on-right .rt{opacity:1}
+.ab{position:relative; width:136px; height:92px}
+.btn{position:absolute; width:58px; height:58px; border-radius:50%; border:0; background:var(--sand); color:var(--shell-dark); font:700 20px var(--f-display);
+  box-shadow:inset 0 -4px 0 var(--sand-dark), 0 4px 0 rgba(0,0,0,.3); touch-action:none; cursor:pointer}
+.btn.down{transform:translateY(3px); box-shadow:inset 0 -1px 0 var(--sand-dark), 0 1px 0 rgba(0,0,0,.3)}
+.btn.a{right:0; top:0}
+.btn.b{left:0; bottom:0}
+.pills{display:flex; gap:8px; flex-wrap:wrap; justify-content:center}
+.pill{border:0; border-radius:999px; padding:6px 12px; background:#2a2c35; color:#e9e3d2; font:600 12px var(--f-body); letter-spacing:.06em; box-shadow:inset 0 -2px 0 rgba(0,0,0,.4); cursor:pointer}
+.pill:focus-visible,.btn:focus-visible,#menu button:focus-visible{outline:3px solid var(--lagoon); outline-offset:2px}
+.keys{color:#8f98a8; font-size:13px; text-align:center; margin:0; max-width:70ch; line-height:1.5}
+.keys kbd{font-family:var(--f-body); background:#1c2a3a; border:1px solid #2e4257; border-radius:4px; padding:0 5px; color:#d8e2ee}
+
+@media (min-width:820px){
+  .console{max-width:1120px; grid-template-columns:150px minmax(0,1fr) 150px; grid-template-areas:"l scr r"; border-radius:64px; padding:22px 26px}
+  .scr{width:min(100%, calc((100vh - 150px) * 1.45), 780px)}
+}
+
+/* in-screen UI */
+.box{background:var(--paper); color:var(--ink); border:3px solid var(--ink); border-radius:6px; box-shadow:inset 0 0 0 2px var(--paper-2), 0 2px 0 rgba(0,0,0,.35)}
+#dlg{position:absolute; left:2.5%; right:2.5%; bottom:3%; min-height:26%; box-sizing:border-box; padding:2.4cqw 3.2cqw 2.6cqw; font-size:clamp(12px,3.5cqw,22px); line-height:1.5; cursor:pointer}
+#dlg .who{position:absolute; top:-1.55em; left:3%; background:var(--shell); color:#fff; padding:.05em .7em .1em; border:3px solid var(--ink); border-radius:6px; font-size:.82em; font-weight:600}
+#dlg .who:empty{display:none}
+#dlg .more{position:absolute; right:2.4cqw; bottom:1cqw; color:var(--shell); font-size:.8em; animation:bob .7s steps(2) infinite}
+#dlg .txt{white-space:pre-wrap; min-height:2.9em}
+#dlg.face{padding-left:calc(4.4em + 4cqw)}
+#dlg .pf{position:absolute; left:2.4cqw; top:50%; transform:translateY(-50%); width:4.2em; height:4.2em; image-rendering:pixelated; border:3px solid var(--ink); border-radius:6px; background:linear-gradient(#bfe8ee,#8fd3dc)}
+#dlg:not(.face) .pf{display:none}
+@keyframes bob{50%{transform:translateY(3px)}}
+#menu{position:absolute; right:2.5%; bottom:31%; min-width:46%; max-width:86%; max-height:66%; overflow:auto; box-sizing:border-box; padding:1.6cqw 2.2cqw; font-size:clamp(12px,3.2cqw,20px)}
+#menu.center{left:50%; right:auto; top:62%; bottom:auto; transform:translate(-50%,-50%); min-width:52%}
+#menu .ttl{font-weight:700; color:var(--shell-dark); margin:0 0 .25em; line-height:1.3}
+#menu button{display:flex; gap:.45em; width:100%; text-align:left; background:none; border:0; font:inherit; color:inherit; padding:.18em .2em; cursor:pointer; line-height:1.3; border-radius:4px}
+#menu button .cur{visibility:hidden; color:var(--shell); flex:none}
+#menu button.on{background:rgba(196,81,58,.12)}
+#menu button.on .cur{visibility:visible}
+#menu button[disabled]{color:#a39a86; cursor:default}
+#menu .sub{display:block; font-size:.76em; color:#7b715d}
+#hud{position:absolute; top:2.2%; left:2.2%; right:2.2%; display:flex; justify-content:space-between; gap:2%; pointer-events:none; font-size:clamp(10px,2.7cqw,16px)}
+#hud div{background:rgba(13,23,33,.78); color:#fff; padding:.15em .6em .2em; border-radius:5px; border:2px solid rgba(255,255,255,.22); white-space:nowrap}
+#hud .money{color:var(--sand); font-variant-numeric:tabular-nums}
+#banner{position:absolute; left:50%; top:40%; transform:translate(-50%,-50%); max-width:88%; text-align:center; background:rgba(13,23,33,.88); color:#fff; border:3px solid var(--sand); border-radius:8px; padding:.4em 1em .5em; font-size:clamp(14px,4.6cqw,30px); font-weight:700; line-height:1.3; box-shadow:0 4px 0 rgba(0,0,0,.4)}
+#toast{position:absolute; top:12%; left:50%; transform:translateX(-50%); max-width:86%; text-align:center; background:var(--lagoon); color:#06201d; border:3px solid var(--ink); border-radius:999px; padding:.2em 1em .3em; font-size:clamp(11px,3cqw,18px); font-weight:600; box-shadow:0 3px 0 rgba(0,0,0,.35); animation:pop .25s steps(3)}
+#toast.stamp{background:var(--sand)}
+#toast.plus{background:#8be38f}
+#toast.minus{background:#ff9b8a}
+#hud .money.flash{animation:flash .5s steps(2) 2}
+@keyframes flash{50%{color:#fff; background:var(--shell)}}
+@keyframes pop{from{transform:translate(-50%,-30%) scale(.8)}}
+#titleUI{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; padding-top:7%; pointer-events:none; text-align:center}
+.logo{font-family:var(--f-display); font-weight:700; color:#fff; font-size:clamp(24px,10cqw,66px); line-height:.95; letter-spacing:.03em; text-shadow:.06em .06em 0 var(--shell-dark), .12em .12em 0 rgba(0,0,0,.35)}
+.logo small{display:block; font-size:.42em; letter-spacing:.32em; color:var(--sand); margin-top:.25em; text-shadow:.1em .1em 0 rgba(0,0,0,.5)}
+.tagline{margin-top:2.2cqw; font-size:clamp(11px,3cqw,18px); color:#ffe9c4; text-shadow:0 2px 0 rgba(0,0,0,.6)}
+#nameUI{position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); width:72%; box-sizing:border-box; padding:3cqw; font-size:clamp(13px,3.6cqw,22px); display:flex; flex-direction:column; gap:2cqw}
+#nameUI label{font-weight:700}
+#nameUI .row{display:flex; gap:2cqw}
+#nameIn{flex:1; min-width:0; font:inherit; border:3px solid var(--ink); border-radius:5px; padding:.2em .5em; background:#fff; color:var(--ink); -webkit-user-select:text; user-select:text}
+#nameOk{font:inherit; font-weight:700; border:3px solid var(--ink); border-radius:5px; background:var(--shell); color:#fff; padding:.1em .8em; cursor:pointer}
+#panel{position:absolute; inset:3%; overflow:auto; box-sizing:border-box; padding:2.6cqw 3cqw; font-size:clamp(11px,2.9cqw,17px); line-height:1.4}
+#panel h2{margin:0; font-size:1.35em; color:var(--shell-dark); text-wrap:balance}
+#panel h3{margin:.9em 0 .35em; font-size:.85em; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+#panel .goal{margin:.4em 0 0; padding:.35em .6em; background:rgba(56,183,169,.16); border-left:4px solid var(--lagoon); border-radius:3px}
+#panel .stamps{display:grid; grid-template-columns:repeat(auto-fill,minmax(5.6em,1fr)); gap:.5em}
+#panel .stamp{display:flex; flex-direction:column; align-items:center; gap:.2em; text-align:center; font-size:.78em; padding:.4em .2em; border:2px dashed #cdbf9c; border-radius:6px; color:#9b917c}
+#panel .stamp.got{border-style:solid; border-color:var(--ink); color:var(--ink); background:#fff}
+#panel .stamp canvas{width:2.6em; height:2.6em; image-rendering:pixelated}
+#panel .words{display:grid; grid-template-columns:auto 1fr; gap:.15em .8em; margin:0}
+#panel .words dt{font-weight:700}
+#panel .words dd{margin:0; color:#5a5244}
+#panel .pieces{display:flex; gap:1em; align-items:center; flex-wrap:wrap}
+#panel .pieces canvas{width:5.5em; height:5.5em; image-rendering:pixelated; border:2px solid var(--ink); border-radius:4px}
+#panel .plist{margin:0; padding-left:1.1em}
+#panel .plist .no{color:#a39a86}
+#panel .set{display:flex; gap:.5em; flex-wrap:wrap}
+#panel .set button{font:inherit; border:2px solid var(--ink); border-radius:999px; background:#fff; padding:.1em .8em; cursor:pointer; color:var(--ink)}
+#panel .set button.on{background:var(--ink); color:#fff}
+#panel .close{position:sticky; top:0; float:right; font:inherit; font-weight:700; border:2px solid var(--ink); border-radius:5px; background:var(--shell); color:#fff; padding:0 .6em; cursor:pointer}
+
+#cardModal{position:fixed; inset:0; z-index:20; background:rgba(6,12,18,.92); display:flex; align-items:center; justify-content:center; padding:max(16px, env(safe-area-inset-top,0px)) max(16px, env(safe-area-inset-right,0px)) max(16px, env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px)); overflow:auto}
+.cm-inner{display:flex; flex-direction:column; align-items:center; gap:12px; max-width:520px; width:100%}
+#cardImg{width:auto; max-width:100%; max-height:68vh; border-radius:10px; box-shadow:0 12px 40px rgba(0,0,0,.6); -webkit-touch-callout:default; -webkit-user-select:auto; user-select:auto}
+.cm-hint{margin:0; color:#cbd5e1; font-size:14px; text-align:center; line-height:1.45}
+.cm-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
+.pill.big{font-size:15px; padding:10px 18px; background:var(--sand); color:var(--ink); box-shadow:inset 0 -3px 0 var(--sand-dark)}
+.pill.big.alt{background:#2a2c35; color:#fff; box-shadow:inset 0 -3px 0 rgba(0,0,0,.4)}
+.cm-msg{margin:0; min-height:1.2em; color:var(--lagoon); font-size:14px}
+@media (prefers-reduced-motion:reduce){ #dlg .more,#toast{animation:none} }
+</style>
+
+<main class="wrap">
+  <div class="console">
+    <div class="scr">
+      <div class="bezel">
+        <div class="screen" id="screen">
+          <canvas id="game" width="240" height="160" aria-label="Island Hopper Vanuatu game screen"></canvas>
+          <div id="hud" hidden><div class="where"></div><div class="money"></div></div>
+          <div id="titleUI" hidden>
+            <div class="logo">ISLAND HOPPER<small>VANUATU</small></div>
+            <div class="tagline" data-th="6 เกาะ 15 วัน กับภาพวาดทรายหนึ่งภาพ" data-en="Six islands, fifteen days, one sand drawing">Six islands, fifteen days, one sand drawing</div>
+          </div>
+          <div id="banner" hidden></div>
+          <div id="toast" hidden></div>
+          <div id="panel" class="box" hidden></div>
+          <div id="nameUI" class="box" hidden>
+            <label for="nameIn" data-th="ชื่อของคุณคือ?" data-en="What's your name?">What's your name?</label>
+            <div class="row"><input id="nameIn" maxlength="12" autocomplete="off" spellcheck="false"><button id="nameOk" type="button">OK</button></div>
+          </div>
+          <div id="menu" class="box" hidden></div>
+          <div id="dlg" class="box" hidden><canvas class="pf" width="32" height="32"></canvas><div class="who"></div><div class="txt"></div><div class="more">▼</div></div>
+        </div>
+        <div class="brand"><span><span class="led"></span>POWER</span><b>ISLAND HOPPER</b></div>
+      </div>
+    </div>
+    <div class="lpad">
+      <div class="dpad" id="dpad" aria-label="Direction pad"><i class="u"></i><i class="d"></i><i class="lft"></i><i class="rt"></i></div>
+    </div>
+    <div class="rpad">
+      <div class="ab">
+        <button class="btn b" id="btnB" type="button" aria-label="B button">B</button>
+        <button class="btn a" id="btnA" type="button" aria-label="A button">A</button>
+      </div>
+      <div class="pills">
+        <button class="pill" id="btnMenu" type="button" data-th="สมุด" data-en="JOURNAL">JOURNAL</button>
+        <button class="pill" id="btnLang" type="button">TH / EN</button>
+        <button class="pill" id="btnMusic" type="button" aria-label="Music on or off">♪ ON</button>
+      </div>
+    </div>
+  </div>
+  <p class="keys" data-th="" data-en=""></p>
+</main>
+
+<div id="cardModal" hidden>
+  <div class="cm-inner">
+    <img id="cardImg" alt="Dream trip card">
+    <p class="cm-hint" id="cmHint"></p>
+    <div class="cm-row">
+      <button class="pill big" id="cmCopy" type="button"></button>
+      <button class="pill big alt" id="cmAgain" type="button"></button>
+    </div>
+    <p class="cm-msg" id="cmMsg"></p>
+  </div>
+</div>
+

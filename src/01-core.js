@@ -127,6 +127,12 @@ bindBtn($('#btnA'),'a'); bindBtn($('#btnB'),'b');
 $('#btnMenu').addEventListener('click',()=>{ audio(); pressed.add('menu'); });
 $('#btnLang').addEventListener('click',()=>{ audio(); setLang(LANG==='th'?'en':'th'); });
 $('#btnMusic').addEventListener('click',()=>{ audio(); musicOn=!musicOn; $('#btnMusic').textContent=musicOn?'♪ ON':'♪ OFF'; });
+{ const fb=$('#btnFull'), pf=$('#playFull'), de=document.documentElement; const req=de.requestFullscreen||de.webkitRequestFullscreen;
+  const isFull=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+  const goFull=async()=>{ audio(); try{ if(!isFull()){ const p=req.call(de,{navigationUI:'hide'}); if(p&&p.then) await p; } }catch(e){} try{ if(screen.orientation&&screen.orientation.lock) await screen.orientation.lock('landscape'); }catch(e){} };
+  if(req&&(document.fullscreenEnabled||document.webkitFullscreenEnabled)){ fb.hidden=false; pf.hidden=false;
+    fb.addEventListener('click',()=>{ if(isFull()){ try{ (document.exitFullscreen||document.webkitExitFullscreen).call(document); }catch(e){} } else goFull(); });
+    pf.addEventListener('click',goFull); } }
 
 /* ---------------- pixel helpers ---------------- */
 const R=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(Math.floor(x),Math.floor(y),w,h); };

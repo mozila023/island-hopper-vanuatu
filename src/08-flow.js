@@ -103,12 +103,12 @@ function tripTitle(){
   return t('นักเดินทางผู้อยากรู้','Curious Traveller');
 }
 function drawPostcardScene(g,x,y,w,h){ const gr=g.createLinearGradient(0,y,0,y+h); gr.addColorStop(0,'#f6a35c'); gr.addColorStop(.55,'#ffd08a'); gr.addColorStop(.56,'#2d6cc0'); gr.addColorStop(1,'#1d4f95'); g.fillStyle=gr; g.fillRect(x,y,w,h); blob(g,x+w*.65,y+h*.55,10,'#fff1b8'); g.fillStyle='#2d6cc0'; g.fillRect(x,y+h*.56,w,h*.44); g.fillStyle='#f1d68e'; g.fillRect(x,y+h*.82,w,h*.18); g.fillStyle='#1b2240'; for(let i=0;i<26;i++) g.fillRect(x+18+Math.round(i*i*.02),y+h*.82-i,2,1); for(const a of [-2.6,-.5,-1.6,2.6,.5]) for(let k=1;k<12;k++) g.fillRect(x+24+Math.cos(a)*k*1.5,y+h*.82-28+Math.sin(a)*k+k*k*.08,3,2); }
-function wrapFit(g,text,maxW,size,weight='400'){ let s=size; while(s>14){ g.font=`${weight} ${s}px 'Pixelify Sans','Itim',system-ui,sans-serif`; if(g.measureText(text).width<=maxW) break; s-=2; } return s; }
+function wrapFit(g,text,maxW,size,weight='400'){ let s=size; while(s>14){ g.font=`${weight} ${s}px 'Mitr',system-ui,sans-serif`; if(g.measureText(text).width<=maxW) break; s-=2; } return s; }
 function drawRouteMini(g,x,y,w,h){ g.fillStyle='#2d6cc0'; g.fillRect(x,y,w,h); const sx=w/240, sy=h/160;
   for(const [id,s] of Object.entries(WMAP)) blob(g,x+s.x*sx,y+s.y*sy,Math.max(2,Math.round(Math.max(s.rx*sx,s.ry*sy)*.8)),G.visited[id]?'#5fb546':'#7a8fa0');
   g.fillStyle='#ffd84d'; for(let i=1;i<G.route.length;i++){ const a=WMAP[G.route[i-1]], b=WMAP[G.route[i]]; if(!a||!b) continue; for(let k=0;k<=20;k++){ if(k%2) continue; g.fillRect(Math.round(x+lerp(a.x,b.x,k/20)*sx),Math.round(y+lerp(a.y,b.y,k/20)*sy),1,1); } } }
 async function renderCard(){
-  try{ await Promise.all([document.fonts.load("700 40px 'Pixelify Sans'"),document.fonts.load("40px Itim","กขค")]); }catch(e){}
+  try{ await Promise.all([document.fonts.load("600 40px Mitr","กขค123"),document.fonts.load("400 40px Mitr","กขค123")]); }catch(e){}
   const c=document.createElement('canvas'); c.width=1080; c.height=1350; const g=c.getContext('2d'); g.imageSmoothingEnabled=false;
   const a=document.createElement('canvas'); a.width=270; a.height=338; const ag=a.getContext('2d'); ag.imageSmoothingEnabled=false;
   ag.fillStyle='#f3dfae'; ag.fillRect(0,0,270,338); for(let i=0;i<900;i++){ const q=hash(i,31); ag.fillStyle=q%3?'#e6cd93':'#fbebc0'; ag.fillRect(q%270,(q>>9)%338,1,1); }
@@ -128,7 +128,7 @@ async function renderCard(){
     ag.fillStyle=got[i]?'#1c1d26':'#c9b688'; ag.fillRect(x-2,y-2,iw+4,iw+4); ag.fillStyle=got[i]?'#fff7e3':'#efe0b8'; ag.fillRect(x-1,y-1,iw+2,iw+2); drawIcon(ag,s.id,x,y,2,!got[i]); });
   ag.fillStyle='#1c1d26'; for(let x=4;x<266;x+=4){ ag.fillRect(x,4,2,1); ag.fillRect(x,333,2,1); } for(let y=4;y<334;y+=4){ ag.fillRect(4,y,1,2); ag.fillRect(265,y,1,2); }
   g.drawImage(a,0,0,1080,1352);
-  const F=(s,wt='400')=>`${wt} ${s}px 'Pixelify Sans','Itim',system-ui,sans-serif`;
+  const F=(s,wt='400')=>`${wt} ${s}px 'Mitr',system-ui,sans-serif`;
   g.textAlign='center'; g.textBaseline='middle';
   const line1=LANG==='th'?`ทริปในฝันของ ${G.name}`:`${G.name}'s Dream Trip`; g.fillStyle='#1b1d26'; g.font=F(wrapFit(g,line1,960,54,'700'),'700'); g.fillText(line1,540,350);
   const ttl=L(tripTitle()); const ts=wrapFit(g,ttl,820,62,'700'); g.font=F(ts,'700'); const tw=g.measureText(ttl).width+80;

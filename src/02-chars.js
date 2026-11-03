@@ -46,10 +46,10 @@ let sprDark=null;
 function sprDarkSheet(){ if(sprDark) return sprDark; const c=document.createElement('canvas'); c.width=IMG.walk.naturalWidth; c.height=IMG.walk.naturalHeight; const g=c.getContext('2d'); g.drawImage(IMG.walk,0,0); g.globalCompositeOperation='source-atop'; g.fillStyle='rgba(10,8,20,.75)'; g.fillRect(0,0,c.width,c.height); return sprDark=c; }
 function drawChar(sx,sy,dir,frame,lk,dark){
   const si=SPR_IDX.get(lk);
-  if(si!=null&&imgOk('walk')){ const ox=Math.floor(sx), oy=Math.floor(sy); const col=frame===1?1:frame===3?2:0; const sh=Math.floor(si/3), k=si%3;
+  if(si!=null&&imgOk('walk')){ const ox=snap(sx), oy=snap(sy); const col=frame===1?1:frame===3?2:0; const sh=Math.floor(si/3), k=si%3;
     ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(ox+3,oy+14,10,2); ctx.fillRect(ox+4,oy+15,8,1);
-    ctx.drawImage(dark?sprDarkSheet():IMG.walk,(k*3+col)*20,sh*108+SPR_ROW[dir]*27,20,27,ox-2,oy-11,20,27); return; }
-  const ox=Math.floor(sx), oy=Math.floor(sy)-4, flip=dir==='left', side=dir==='left'||dir==='right';
+    ctx.drawImage(dark?sprDarkSheet():IMG.walk,(k*3+col)*40,sh*216+SPR_ROW[dir]*54,40,54,ox-2,oy-11,20,27); return; }
+  const ox=snap(sx), oy=snap(sy)-4, flip=dir==='left', side=dir==='left'||dir==='right';
   const r=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(flip?ox+16-x-w:ox+x,oy+y,w,h); };
   const O=C.out, sk=lk.skin, shc=lk.shirt, hr=lk.hair, S=sh(lk);
   const step=frame===1?1:frame===3?2:0;

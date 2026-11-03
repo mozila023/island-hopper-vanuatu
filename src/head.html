@@ -82,7 +82,7 @@ body{
   .rpad{position:fixed; z-index:6; right:max(14px, env(safe-area-inset-right,0px)); bottom:max(14px, env(safe-area-inset-bottom,0px)); gap:10px}
   .dpad{--dp:min(34vmin, 170px); opacity:.82}
   .ab{--ab:min(38vmin, 180px); opacity:.82}
-  .dpad::before,.dpad::after{background:rgba(20,24,34,.38); box-shadow:inset 0 0 0 2px rgba(255,255,255,.35); border-radius:12px; backdrop-filter:blur(2px)}
+  .dpad::before,.dpad::after{background:rgba(20,24,34,.38); box-shadow:inset 0 0 0 2px rgba(255,255,255,.35); border-radius:12px}
   .dpad i{opacity:.8}
   .btn{background:rgba(20,24,34,.38); color:#fff; box-shadow:inset 0 0 0 2px rgba(255,255,255,.4); text-shadow:0 1px 2px rgba(0,0,0,.6)}
   .btn.down{background:rgba(255,255,255,.35); transform:none}
@@ -107,6 +107,9 @@ body{
 #dlg .who:empty{display:none}
 #dlg .more{position:absolute; right:2.4cqw; bottom:1cqw; color:var(--shell); font-size:.8em; animation:bob .7s steps(2) infinite}
 #dlg .txt{white-space:pre-wrap; min-height:2.9em}
+#dlg:not([hidden]){animation:dlgIn .18s ease-out}
+@keyframes dlgIn{from{transform:translateY(12%); opacity:.4}}
+#menu:not([hidden]){animation:dlgIn .14s ease-out}
 #dlg.face{padding-left:calc(4.4em + 4cqw)}
 #dlg .pf{position:absolute; left:2.4cqw; top:50%; transform:translateY(-50%); width:4.2em; height:4.2em; image-rendering:pixelated; border:3px solid var(--ink); border-radius:6px; background:linear-gradient(#bfe8ee,#8fd3dc)}
 #dlg:not(.face) .pf{display:none}
@@ -176,7 +179,7 @@ body{
     <div class="scr">
       <div class="bezel">
         <div class="screen" id="screen">
-          <canvas id="game" width="240" height="160" aria-label="Island Hopper Vanuatu game screen"></canvas>
+          <canvas id="game" width="480" height="320" aria-label="Island Hopper Vanuatu game screen"></canvas>
           <div id="hud" hidden><div class="where"></div><div class="money"></div></div>
           <div id="titleUI" hidden>
             <div class="logo">ISLAND HOPPER<small>VANUATU</small></div>

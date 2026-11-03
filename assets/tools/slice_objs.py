@@ -2,6 +2,7 @@
 import sys, json
 from PIL import Image
 import numpy as np
+import scipy.ndimage as ndi
 src_p,out_p=sys.argv[1],sys.argv[2]; C,Rn=int(sys.argv[3]),int(sys.argv[4]); widths=[int(x) for x in sys.argv[5].split(',')]
 im=Image.open(src_p).convert('RGB'); a=np.asarray(im).astype(int)
 mag=(a[:,:,0]>170)&(a[:,:,1]<110)&(a[:,:,2]>170)&(a[:,:,0]-a[:,:,1]>90)
@@ -26,9 +27,15 @@ for r in range(Rn):
   for c in range(C):
     x0,x1=c*W//C,(c+1)*W//C; y0,y1=r*H//Rn,(r+1)*H//Rn
     sub=fg[y0:y1,x0:x1]
-    # keep largest blob region: rows/cols with enough fg
-    ys=np.where(sub.mean(axis=1)>0.01)[0]; xs=np.where(sub.mean(axis=0)>0.01)[0]
-    cell=src.crop((x0+xs.min(),y0+ys.min(),x0+xs.max()+1,y0+ys.max()+1))
+    # keep every sizeable connected part of the object (drop specks), full extent, nothing trimmed
+    lab,n=ndi.label(ndi.binary_opening(sub,iterations=1))
+    sizes=ndi.sum(sub,lab,range(1,n+1)); big=max(sizes) if n else 0
+    keep=np.isin(lab,[i+1 for i,sz in enumerate(sizes) if sz>=max(150,big*0.004)])
+    keep=ndi.binary_dilation(keep,iterations=2)&sub
+    ys=np.where(keep.any(axis=1))[0]; xs=np.where(keep.any(axis=0))[0]
+    m=np.zeros_like(fg); m[y0:y1,x0:x1]=keep
+    arr=np.asarray(src).copy(); arr[:,:,3]=np.where(m,255,0); cs=Image.fromarray(arr,'RGBA')
+    cell=cs.crop((x0+xs.min(),y0+ys.min(),x0+xs.max()+1,y0+ys.max()+1))
     objs.append(down(cell,widths[len(objs)]))
 tw=sum(o.width for o in objs)+len(objs); th=max(o.height for o in objs)
 out=Image.new('RGBA',(tw,th),(0,0,0,0)); x=0; atlas=[]

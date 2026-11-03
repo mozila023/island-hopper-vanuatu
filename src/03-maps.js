@@ -120,7 +120,7 @@ function buildPentecost(){
   rect(tl,16,5,1,26,'=');
   airport(m,9,20,'LONORORE'); rect(tl,11,23,6,1,'=');
   rect(tl,9,12,5,5,'y'); rect(tl,14,14,2,1,'='); setT(tl,14,13,'.');
-  lodge(m,18,21,'village',4000,t('เกสต์เฮาส์หมู่บ้าน','Village guesthouse')); rect(tl,16,24,4,1,'=');
+  lodge(m,18,21,'guest',4000,t('เกสต์เฮาส์หมู่บ้าน','Village guesthouse')); rect(tl,16,24,4,1,'=');
   wharfRight(m,27,16);
   setT(tl,14,27,'.'); setT(tl,13,27,'.');
   for(let y=12;y<=16;y++) m.inter.push({x:13,y,fn:yamGarden});
@@ -139,7 +139,7 @@ function buildAmbrym(){
   rect(tl,8,11,6,4,'.'); m.builds.push({type:'tamtam',x:9,y:12,w:3,h:2}); rect(tl,12,15,1,5,'='); setT(tl,12,14,'.');
   rect(tl,23,10,6,5,'d'); rect(tl,25,15,1,5,'=');
   rect(tl,18,9,1,1,'a'); rect(tl,18,10,1,10,'=');
-  lodge(m,27,16,'village',3500,t('บ้านพักหมู่บ้าน','Village homestay'));
+  lodge(m,27,16,'guest',3500,t('บ้านพักหมู่บ้าน','Village homestay'));
   wharfDown(m,18,21);
   setT(tl,14,22,'.');
   m.inter.push({x:9,y:13,fn:tamtam},{x:10,y:13,fn:tamtam},{x:11,y:13,fn:tamtam});
@@ -181,13 +181,13 @@ const MAPS={}; for(const id in BUILDERS) MAPS[id]=finishMap(BUILDERS[id]());
 /* ---------------- ground painter (per-pixel, dithered) ---------------- */
 function paintGround(m){
   const pal={}; const P=Object.assign({},PAL_BASE,m.pal); for(const k in P) pal[k]=P[k].map(hex2rgb);
-  const PW=m.w*16, PH=m.h*16, c=document.createElement('canvas'); c.width=PW; c.height=PH; const g=c.getContext('2d');
+  const PW=m.w*16*SC, PH=m.h*16*SC, c=document.createElement('canvas'); c.width=PW; c.height=PH; const g=c.getContext('2d');
   const img=g.createImageData(PW,PH), d=img.data;
   const at=(x,y)=>(m.t[y]&&m.t[y][x])||'~';
   const base=ch=>ch==='#'?',':('T:fr'.includes(ch)?'.':ch==='M'?'w':ch==='p'?'w':ch);
   const bh=grid(m.w,m.h,0); for(let y=0;y<m.h;y++) for(let x=0;x<m.w;x++) if(m.t[y][x]==='B'){ let k=0; for(let r=1;r<4;r++){ let all=true; for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++) if(at(x+dx,y+dy)!=='B') all=false; if(all) k=r; else break; } bh[y][x]=k; }
-  for(let py=0;py<PH;py++){ const ty=py>>4, ly=py&15; for(let px=0;px<PW;px++){
-    const tx=px>>4, lx=px&15; let b=base(m.t[ty][tx]); const bay=BAYER[(py&3)*4+(px&3)];
+  for(let PY=0;PY<PH;PY++){ const py=PY/SC, ty=Math.floor(py/16), ly=py-ty*16; for(let PX=0;PX<PW;PX++){
+    const px=PX/SC, tx=Math.floor(px/16), lx=px-tx*16; let b=base(m.t[ty][tx]); const bay=BAYER[(PY&3)*4+(PX&3)];
     if(b===','||b==='='||b==='d'||b==='a'||b==='y'){ const n=vnoise(px*.45,py*.45,9);
       const nb=(ddx,ddy)=>base(at(tx+ddx,ty+ddy));
       if(lx<4&&nb(-1,0)==='.'&&n*4>lx) b='.'; else if(lx>11&&nb(1,0)==='.'&&n*4>15-lx) b='.'; else if(ly<4&&nb(0,-1)==='.'&&n*4>ly) b='.'; else if(ly>11&&nb(0,1)==='.'&&n*4>15-ly) b='.';
@@ -212,9 +212,9 @@ function paintGround(m){
       case 'W': col=[127,211,240]; break;
       default: col=pal.grass[1];
     }
-    const i=(py*PW+px)*4; d[i]=col[0]; d[i+1]=col[1]; d[i+2]=col[2]; d[i+3]=255;
+    const i=(PY*PW+PX)*4; d[i]=col[0]; d[i+1]=col[1]; d[i+2]=col[2]; d[i+3]=255;
   } }
-  g.putImageData(img,0,0);
+  g.putImageData(img,0,0); g.setTransform(SC,0,0,SC,0,0);
   const r=(x,y,w,h,cl)=>{ g.fillStyle=cl; g.fillRect(x,y,w,h); };
   const G2=P.grass;
   for(let y=0;y<m.h;y++) for(let x=0;x<m.w;x++){

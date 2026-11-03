@@ -5,6 +5,7 @@ const imgOk=k=>IMG[k]&&IMG[k].complete&&IMG[k].naturalWidth>0;
 const W=240,H=160;
 const cvs=document.getElementById('game'), ctx=cvs.getContext('2d');
 ctx.imageSmoothingEnabled=false;
+const SC=2; const snap=v=>Math.round(v*SC)/SC; ctx.setTransform(SC,0,0,SC,0,0);
 const $=s=>document.querySelector(s);
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const lerp=(a,b,q)=>a+(b-a)*q;
@@ -24,7 +25,7 @@ const SAVE_KEY='ihv-save-v2';
 let G={};
 function freshG(){ return {name:'',gender:'m',island:'efate',day:1,maxDays:15,slot:0,money:150000,budget:150000,spent:0,earned:0,
   stamps:{},words:{},pieces:{},flags:{},memories:[],visited:{efate:1},route:['efate'],kava:0,photo:0,photoData:null,karma:0,
-  steps:0,lastEvStep:0,evKey:-1,evSeen:{},rain:false,kaloPart:0,chapter:1,px:0,py:0,dir:'down',ended:false}; }
+  steps:0,lastEvStep:0,secrets:{},evKey:-1,evSeen:{},rain:false,kaloPart:0,chapter:1,px:0,py:0,dir:'down',ended:false}; }
 G=freshG();
 function L(x){ if(x==null) return ''; if(typeof x==='function') x=x(); if(typeof x==='string') return x.replace(/\{name\}/g,G.name||'...'); const s=(x[LANG]!=null?x[LANG]:x.en)||''; return s.replace(/\{name\}/g,G.name||'...'); }
 const fmt=n=>Math.round(n).toLocaleString('en-US');
@@ -137,7 +138,7 @@ $('#btnMusic').addEventListener('click',()=>{ audio(); musicOn=!musicOn; $('#btn
     pf.addEventListener('click',goFull); } }
 
 /* ---------------- pixel helpers ---------------- */
-const R=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(Math.floor(x),Math.floor(y),w,h); };
+const R=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(Math.floor(x*SC)/SC,Math.floor(y*SC)/SC,w,h); };
 function blob(g,cx,cy,r,c){ g.fillStyle=c; for(let dy=-r;dy<=r;dy++){ const w=Math.round(Math.sqrt(r*r-dy*dy)); g.fillRect(Math.floor(cx-w),Math.floor(cy+dy),w*2,1); } }
 function pline(g,x0,y0,x1,y1,c,wd=1){ g.fillStyle=c; x0=Math.round(x0); y0=Math.round(y0); x1=Math.round(x1); y1=Math.round(y1); const dx=Math.abs(x1-x0), dy=-Math.abs(y1-y0), sx=x0<x1?1:-1, sy=y0<y1?1:-1; let e=dx+dy; for(let i=0;i<600;i++){ g.fillRect(x0,y0,wd,wd); if(x0===x1&&y0===y1) break; const e2=2*e; if(e2>=dy){ e+=dy; x0+=sx; } if(e2<=dx){ e+=dx; y0+=sy; } } }
 const FONT={A:'010101111101101',B:'110101110101110',C:'011100100100011',D:'110101101101110',E:'111100110100111',F:'111100110100100',G:'011100101101011',H:'101101111101101',I:'111010010010111',J:'001001001101010',K:'101101110101101',L:'100100100100111',M:'101111111101101',N:'110101101101101',O:'010101101101010',P:'111101111100100',Q:'010101101110011',R:'111101110101101',S:'011100010001110',T:'111010010010010',U:'101101101101111',V:'101101101101010',W:'101101111111101',X:'101101010101101',Y:'101101010010010',Z:'111001010100111','0':'111101101101111','1':'010110010010111','2':'110001010100111','3':'110001010001110','4':'101101111001001','5':'111100110001110','6':'011100111101111','7':'111001010010010','8':'111101111101111','9':'111101111001110','.':'000000000000010','-':'000000111000000','!':'010010010000010',':':'000010000010000','/':'001001010100100','*':'010111010101000','+':'000010111010000'};

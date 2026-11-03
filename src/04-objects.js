@@ -125,22 +125,24 @@ function drawRopeTree(X,Y,tm){
   const sw=Math.sin(tm*1.6)*4; pline(ctx,X+12,Y+2,X+14+sw,Y+26,'#c8a24a'); R(X+12+sw,Y+26,5,2,C.out);
 }
 function drawSandMini(X,Y){ ctx.drawImage(sandCanvas(32,16,true),X,Y); }
-function atlasDraw(name,i,cxp,bottom,flip){ const r=ASSET_META[name][i]; const x=Math.round(cxp-r[2]/2), y=Math.round(bottom-r[3]);
-  if(flip){ ctx.save(); ctx.translate(x+r[2],y); ctx.scale(-1,1); ctx.drawImage(IMG[name],r[0],r[1],r[2],r[3],0,0,r[2],r[3]); ctx.restore(); } else ctx.drawImage(IMG[name],r[0],r[1],r[2],r[3],x,y,r[2],r[3]); return {x,y,w:r[2],h:r[3]}; }
+function atlasDraw(name,i,cxp,bottom,flip){ const r=ASSET_META[name][i]; const w=r[2]/SC, h=r[3]/SC; const x=snap(cxp-w/2), y=snap(bottom-h);
+  if(flip){ ctx.save(); ctx.translate(x+w,y); ctx.scale(-1,1); ctx.drawImage(IMG[name],r[0],r[1],r[2],r[3],0,0,w,h); ctx.restore(); } else ctx.drawImage(IMG[name],r[0],r[1],r[2],r[3],x,y,w,h); return {x,y,w,h}; }
 const BIDX={tama:0,nakamal:1,village:2,bungalow:3,airport:4,market:5,store:6,booth:7};
 function plate(label,cxp,y,bg,fg){ const lw=ptw(label)+6; R(cxp-lw/2,y,lw,9,C.out); R(cxp-lw/2+1,y+1,lw-2,7,bg); ptext(ctx,label,cxp-lw/2+3,y+2,fg); }
+const B2IDX={ticket:0,canteen:1,craft:2,guest:3,copra:4,resto:5,busstop:6,shed:7};
 function drawBuildArt(b,X,Y,w,h,tm){
-  if(!imgOk('buildings')) return false;
-  const key=b.type==='hut'?(b.style||'village'):b.type; const i=BIDX[key]; if(i==null) return false;
+  const key=b.type==='hut'?(b.style||'village'):(b.type==='booth'&&b.label==='BOAT'?'ticket':b.type); let atlas='buildings', i=BIDX[key];
+  if(i==null||key==='ticket'){ i=B2IDX[key]; atlas='buildings2'; }
+  if(i==null||!imgOk(atlas)||!ASSET_META[atlas]||!ASSET_META[atlas][i]) return false;
   const cxp=X+w/2; shadowE(cxp+3,Y+h-4,w+10,7,.25);
-  const r=atlasDraw('buildings',i,cxp,Y+h+2);
+  const r=atlasDraw(atlas,i,cxp,Y+h+2);
   if(b.label){ if(b.type==='airport') plate(b.label,cxp,r.y+r.h-38,'#1f4d86','#ffffff'); else if(b.type==='market') plate(b.label,cxp,r.y-4,'#ffd84d',C.out); else plate(b.label,cxp,r.y-2,b.type==='booth'?'#ffd84d':'#d9453a',b.type==='booth'?C.out:'#ffffff'); }
   return true; }
 function volcFx(x,y,tm,night){ for(let i=0;i<5;i++){ const ph=(tm*.18+i/5)%1, sx=x+Math.sin(ph*5+i)*4+ph*14, sy=y-4-ph*40, rr=Math.round(3+ph*8); blob(ctx,sx,sy,rr,`rgba(${night?120:200},${night?110:195},${night?120:200},${(1-ph)*.6})`); }
   if(night) for(let i=0;i<6;i++){ const ph=(tm*.9+i*.37)%1; if(ph<.6) R(x+Math.sin(i*7.3)*ph*22,y-ph*26+ph*ph*34,2,2,ph<.3?'#ffd23f':'#ff7a1a'); } }
 function drawBuild(b,cx,cy,tm){
   const X=b.x*16-cx, Y=b.y*16-cy, w=b.w*16, h=b.h*16, night=G.slot>=2;
-  if(['hut','airport','store','market','booth'].includes(b.type)&&drawBuildArt(b,X,Y,w,h,tm)) return;
+  if(['hut','airport','store','market','booth','canteen','craft','copra','resto','busstop','shed'].includes(b.type)&&drawBuildArt(b,X,Y,w,h,tm)) return;
   if(imgOk('nature')){ if(b.type==='banyan'){ shadowE(X+w/2,Y+h-4,w+40,10,.25); atlasDraw('nature',2,X+w/2,Y+h+4); return; } if(b.type==='tower'){ shadowE(X+w/2+6,Y+h-4,w+14,7,.28); atlasDraw('nature',3,X+w/2,Y+h+2); return; } if(b.type==='boat'){ const bob=Math.round(Math.sin(tm*1.8)); atlasDraw('nature',5,X+16,Y+16+bob); R(X-1,Y+15+bob,34,1,C.foam); return; } if(b.type==='canoe'){ const bob=Math.round(Math.sin(tm*1.6)); atlasDraw('nature',6,X+14,Y+14+bob); return; } if(b.type==='plane'){ atlasDraw('nature',7,X+16,Y+20); return; } }
   if(imgOk('objs2')){
     if(b.type==='volcano'){ const r=atlasDraw('objs2',0,X+w/2,Y+h+10); volcFx(X+w/2-4,r.y+14,tm,G.slot>=2); return; }

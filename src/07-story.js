@@ -8,6 +8,7 @@ async function arrival(){
     S1(null,`ได้รับสมุดเดินทาง! กดปุ่ม "สมุด" หรือ M เพื่อดูเป้าหมาย แสตมป์ และคำศัพท์`,`You got the Travel Journal! Press JOURNAL (or M) to check your goal, stamps and words.`),
     S1('luna',`มีเวลา 15 วัน งบ 150,000 วาตู ทุกกิจกรรมกินเวลาหนึ่งช่วงของวัน วางแผนดีๆ นะ`,`You have 15 days and 150,000 vatu. Each activity takes one part of the day, so plan well.`),
     S1('luna',`เครื่องบินเร็วแต่แพง เรือถูกแต่ต้องค้างคืนบนเรือ ส่วนระหว่างทางก็อาจเจอเรื่องเซอร์ไพรส์ได้ตลอด`,`Planes are fast but pricey. Boats are cheap but take the night. And surprises can pop up anywhere.`),
+    S1('luna',`อ้อ คุณตา Kalo เคยบอกว่าทุกเกาะมี "เรื่องเล่าลับ" ที่ผู้เฒ่าจะเล่าตอนพลบค่ำ ถ้าเห็นแสงระยิบตอนค่ำ ลองเข้าไปดูนะ`,`Oh, Grandpa Kalo used to say every island has a "secret story" the elders tell after dusk. If you see a glimmer in the evening, go and look.`),
     S1('luna',`บ้านเราอยู่ทางตะวันตกของเมือง เดินตามถนนใหญ่ไปทางซ้ายนะ คุณยายอยากเจอมาก`,`My home is west of town. Follow the main road to the left. Grandma can't wait to meet you.`));
   G.flags.met=true; await fadeTo(1,300); repopulate(); await fadeTo(0,300); save();
 }

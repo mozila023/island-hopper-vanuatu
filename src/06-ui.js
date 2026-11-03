@@ -10,7 +10,7 @@ function whoName(w){ if(!w) return ''; const c=CAST[w]; return c?L(c[0]):''; }
 const pfEl=$('#dlg .pf'); let pfc=pfEl.getContext('2d');
 const PORTRAIT_IDX={}; ['meM','meF','luna','pita','boat','guide','vendor','boss','driver','kid','elder','chief','old','woman','woman2','rose','jimmy','store','bule','moses','farmer','willie','leiwia','nini'].forEach((k,i)=>{ if(ASSET_META.portraitSheets.includes(Math.floor(i/8))) PORTRAIT_IDX[k]=i; });
 function drawPortrait(key){ const k=key==='me'?(G.gender==='f'?'meF':'meM'):key; const i=PORTRAIT_IDX[k];
-  if(i!=null&&imgOk('portraits')){ if(pfEl.width!==48){ pfEl.width=48; pfEl.height=48; pfc=pfEl.getContext('2d'); } pfc.imageSmoothingEnabled=false; pfc.clearRect(0,0,48,48); pfc.drawImage(IMG.portraits,i*48,0,48,48,0,0,48,48); return; }
+  if(i!=null&&imgOk('portraits')){ if(pfEl.width!==96){ pfEl.width=96; pfEl.height=96; pfc=pfEl.getContext('2d'); } pfc.imageSmoothingEnabled=false; pfc.clearRect(0,0,96,96); pfc.drawImage(IMG.portraits,i*96,0,96,96,0,0,96,96); return; }
   if(pfEl.width!==32){ pfEl.width=32; pfEl.height=32; pfc=pfEl.getContext('2d'); } drawFace(pfc,lookOf(key)); }
 function nextLine(){ const ln=dlg.queue.shift(); if(!ln){ dlg.open=false; $('#dlg').hidden=true; const r=dlg.res; dlg.res=null; r&&r(); return; } dlg.cur=ln; dlg.segs=graphemes(L(ln.t)); dlg.shown=0; dlg.acc=0;
   const c=ln.who&&CAST[ln.who]; $('#dlg').classList.toggle('face',!!c); if(c) drawPortrait(c[1]); renderDlg(); }
@@ -62,6 +62,8 @@ function renderPanel(){ const el=$('#panel');
   <h3>${LANG==='th'?`ภาพวาดทราย ${nP}/${PIECES.length}`:`Sand drawing ${nP}/${PIECES.length}`}</h3>
   <div class="pieces"><canvas width="56" height="56" id="pSand"></canvas><ul class="plist">${PIECES.map(p=>`<li class="${G.pieces[p.id]?'':'no'}">${esc(L(p.name))}</li>`).join('')}</ul></div>
   <h3>${LANG==='th'?`แสตมป์ ${nS}/${STAMPS.length}`:`Stamps ${nS}/${STAMPS.length}`}</h3>${groups}
+  <h3>${LANG==='th'?`เรื่องเล่าลับ ${secretCount()}/6`:`Secret stories ${secretCount()}/6`}</h3>
+  <ul class="plist">${SECRETS.map(s=>`<li class="${G.secrets&&G.secrets[s.id]?'':'no'}">${G.secrets&&G.secrets[s.id]?esc(L(s.title)):'??? '+(G.visited[s.isl]?`<small>(${esc(L(ISLANDS[s.isl].name))}: ${esc(L(s.hint))})</small>`:`<small>(${esc(L(ISLANDS[s.isl].name))})</small>`)}</li>`).join('')}</ul>
   <h3>${LANG==='th'?`คำ Bislama ${Object.keys(G.words).length}/${Object.keys(WORDS).length}`:`Bislama words ${Object.keys(G.words).length}/${Object.keys(WORDS).length}`}</h3>
   ${Object.keys(G.words).length?`<dl class="words">${Object.keys(G.words).map(k=>`<dt>${esc(WORDS[k].w)}</dt><dd>${esc(L(WORDS[k].m))}</dd>`).join('')}</dl>`:`<p style="margin:0;color:#7b715d">${LANG==='th'?'ยังไม่มี ลองคุยกับคนบนเกาะดูสิ':'None yet. Talk to people on the islands.'}</p>`}
   <h3>${LANG==='th'?'ตั้งค่า':'Settings'}</h3>
@@ -90,8 +92,8 @@ function setLang(l){ LANG=l; applyLang(); if(dlg.open&&dlg.cur){ const full=dlg.
 function save(){ try{ G.px=P.x; G.py=P.y; G.dir=P.dir; localStorage.setItem(SAVE_KEY,JSON.stringify(G)); }catch(e){} }
 function loadSave(peek){ try{ const s=localStorage.getItem(SAVE_KEY); if(!s) return null; const o=JSON.parse(s); if(!o||o.ended||!o.name) return null; if(!peek) G=Object.assign(freshG(),o); return o; }catch(e){ return null; } }
 function learnWord(id){ if(G.words[id]) return; G.words[id]=1; const w=WORDS[id]; toast(t(`คำใหม่! ${w.w} = ${w.m.th}`,`New word! ${w.w} = ${w.m.en}`)); sfx.word(); }
-function getStamp(id){ if(G.stamps[id]) return false; G.stamps[id]=1; const s=STAMPS.find(x=>x.id===id); toast(t(`ได้แสตมป์! ${s.name.th}`,`Stamp collected! ${s.name.en}`),'stamp'); sfx.stamp(); return true; }
-function getPiece(id){ if(G.pieces[id]) return; G.pieces[id]=1; const p=PIECES.find(x=>x.id===id); toast(t(`ชิ้นส่วนภาพวาดทราย: ${p.name.th}`,`Sand drawing piece: ${p.name.en}`),'stamp'); sfx.stamp(); }
+function getStamp(id){ if(G.stamps[id]) return false; G.stamps[id]=1; burst(W/2,40,'#ffd84d',24,true); const s=STAMPS.find(x=>x.id===id); toast(t(`ได้แสตมป์! ${s.name.th}`,`Stamp collected! ${s.name.en}`),'stamp'); sfx.stamp(); return true; }
+function getPiece(id){ if(G.pieces[id]) return; G.pieces[id]=1; burst(W/2,60,'#f3dfae',36,true); const p=PIECES.find(x=>x.id===id); toast(t(`ชิ้นส่วนภาพวาดทราย: ${p.name.th}`,`Sand drawing piece: ${p.name.en}`),'stamp'); sfx.stamp(); }
 function memory(m){ G.memories.push(m); }
 function spend(c){ G.money-=c; G.spent+=c; hud(); flashMoney(); }
 function money(delta){ if(delta<0){ const d=Math.min(G.money,-delta); G.money-=d; G.spent+=d; toast(t(`-${fmt(d)} VT`,`-${fmt(d)} VT`),'minus'); sfx.lose(); } else { G.money+=delta; G.earned+=delta; toast(t(`+${fmt(delta)} VT`,`+${fmt(delta)} VT`),'plus'); sfx.coin(); } hud(); flashMoney(); }

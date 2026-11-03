@@ -69,6 +69,11 @@ async function finale(){
     sc.startHold(); await sc.done; await wait(400);
     await say(S1('pita',`...ครบแล้ว ขอบใจนะ ตาคงยิ้มอยู่บนฟ้า`,`...It's whole now. Thank you. Kalo must be smiling up there.`)); memory(t('วาดเส้นกลับบ้านให้คุณตา Kalo','Drew the way home for Grandpa Kalo')); }
   else { await sc.done; await wait(500); await say(S1('pita',`เส้นยังไม่ครบ ไม่เป็นไร ทุกเส้นทางเริ่มจากก้าวเล็กๆ กลับมาวาดต่อวันหลังนะ`,`The line isn't finished. That's fine. Every path starts with a small step. Come back and finish it one day.`)); }
+  if(secretCount()===6){ await say(S1('pita',`แล้วเรื่องเล่าลับล่ะ ...เธอได้ฟังครบทั้งหกเกาะเลยเหรอ`,`And the secret stories... you heard all six?`),
+      S1('pita',`Kalo ก็เคยเก็บเรื่องเล่าเหล่านี้ เขาบอกว่าภาพวาดของเขามีเส้นทองซ่อนอยู่ จะเห็นได้ก็ต่อเมื่อมีคนรู้เรื่องเล่าครบ`,`Kalo gathered these stories too. He said his drawing hid a golden line that only appears for someone who knows them all.`));
+    G.flags.goldLine=true; await fadeTo(1,400); const sc2=SandScene(); setScene(sc2); await fadeTo(0,400); await wait(2600);
+    await say(S1('pita',`เห็นมั้ย ...เรื่องเล่าไม่ได้อยู่ในหนังสือ มันอยู่กับผู้คน และตอนนี้มันอยู่กับเธอแล้ว`,`You see... stories don't live in books. They live in people. And now they live in you.`));
+    memory(t('ได้รับมอบเรื่องเล่าลับครบ 6 เกาะ','Became a keeper of six secret stories')); }
   const adv=G.flags.lunaAdvice;
   if(adv==='stay') await say(S1('luna',`เราตัดสินใจแล้ว ...จะอยู่ที่นี่ เป็นไกด์ดำน้ำ พาคนมาดูปะการังของเกาะเรา`,`I've decided... I'll stay and become a dive guide, showing people our island's reefs.`),S1('pita',`หลานเลือกเองนะ ยายดีใจทุกทาง`,`You chose for yourself, dear. I'm happy either way.`));
   else if(adv) await say(S1('luna',`เราตัดสินใจแล้ว ...จะไปเรียนที่ฟิจิ แล้วกลับมาดูแลปะการังของบ้านเรา`,`I've decided... I'll study in Fiji, then come home to protect our reefs.`),S1('pita',`ไปเถอะหลาน คนที่รักเกาะจะกลับมาเสมอ เหมือนเต่า เหมือนตาของหลาน`,`Go, dear. People who love the islands always come back, like the turtles, like your grandpa.`));
@@ -90,6 +95,7 @@ async function missedFlight(){
 /* ---------------- share card ---------------- */
 function tripTitle(){
   const st=Object.keys(G.stamps).length, nP=PIECES.filter(p=>G.pieces[p.id]).length, isl=Object.keys(G.visited).length;
+  if(secretCount()===6&&!G.flags.missed) return t('ผู้รักษาเรื่องเล่า','Keeper of Stories');
   if(G.flags.missed) return t('ผู้หลงรักเกาะ','Island Lover');
   if(st>=STAMPS.length) return t('ตำนานนักกระโดดเกาะ','Island Hopper Legend');
   if(nP>=PIECES.length) return t('ผู้เดินตามรอยคุณตา Kalo','Keeper of Kalo\'s Path');
@@ -206,7 +212,9 @@ function loop(now){
   else if(menu.open) menuUpdate();
   else if(dlg.open) dlgUpdate(dt);
   else if(panelOpen) panelUpdate();
+  ctx.setTransform(SC,0,0,SC,0,0); ctx.imageSmoothingEnabled=false;
   if(scene){ scene.anim&&scene.anim(dt,TM); if(!uiOpen()&&(busyCount===0||scene.always)) scene.input&&scene.input(dt); scene.draw(TM); }
+  fxUpdate(dt); if(scene!==MapScene) fxDraw(0,0,true);
   fadeUpdate(dt); fadeDraw();
   pressed.clear();
   requestAnimationFrame(loop);
@@ -221,7 +229,7 @@ function check(){ const out=[]; for(const id in MAPS){ const m=MAPS[id]; const s
   if(m.spawn.pier&&!seen[m.spawn.pier.y][m.spawn.pier.x]) out.push(id+': pier spawn unreachable'); }
   return out; }
 applyLang();
-window.IHV={get busy(){return busyCount;},get mini(){return !!(scene&&scene.always);},get G(){return G;},P,MAPS,enterMap,run,travel,setScene,finale,showCard,setLang,check,get M(){return M;},randomEvent,arriveIsland,menuPick,SC:{SwimScene,VolcanoScene,DanceScene,SwingScene,KnotScene,NagolScene,DrumScene,CanoeScene,VolcViewScene,RoomScene,FlightScene,TitleScene},hud,uiReset:()=>{ menu.open=false; menu.res=null; $('#menu').hidden=true; $('#titleUI').hidden=true; }};
+window.IHV={get busy(){return busyCount;},get mini(){return !!(scene&&scene.always);},get G(){return G;},P,MAPS,enterMap,run,travel,setScene,finale,showCard,setLang,check,get M(){return M;},randomEvent,arriveIsland,menuPick,SECRETS,secretSpot,SC:{SwimScene,VolcanoScene,DanceScene,SwingScene,KnotScene,NagolScene,DrumScene,CanoeScene,VolcViewScene,RoomScene,FlightScene,TitleScene},hud,uiReset:()=>{ menu.open=false; menu.res=null; $('#menu').hidden=true; $('#titleUI').hidden=true; }};
 requestAnimationFrame(loop);
 titleFlow();
 })();

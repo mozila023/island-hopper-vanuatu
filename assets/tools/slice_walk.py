@@ -3,7 +3,7 @@
 import sys
 from PIL import Image
 import numpy as np
-src_p,out_p=sys.argv[1],sys.argv[2]; TH=int(sys.argv[3]) if len(sys.argv)>3 else 26
+src_p,out_p=sys.argv[1],sys.argv[2]; S=int(sys.argv[3]) if len(sys.argv)>3 else 1; TH=26*S
 im=Image.open(src_p).convert('RGB'); a=np.asarray(im).astype(int)
 mag=(a[:,:,0]>170)&(a[:,:,1]<110)&(a[:,:,2]>170)&(a[:,:,0]-a[:,:,1]>90)
 fg=~mag
@@ -21,7 +21,7 @@ def runs(v,th,mingap):
 rr=runs(fg.mean(axis=1),0.003,10)
 if len(rr)!=4: print('ROWS',len(rr),rr); 
 rgba=np.dstack([a,np.where(fg,255,0)]).astype(np.uint8); src=Image.fromarray(rgba,'RGBA')
-FW,FH=20,27
+FW,FH=20*S,27*S
 frames=[]
 for (y0,y1) in rr[:4]:
     band=fg[y0:y1+1]; cr=runs(band.mean(axis=0),0.003,6)

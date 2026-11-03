@@ -8,7 +8,7 @@ const graphemes=s=>segmenter?Array.from(segmenter.segment(s),x=>x.segment):Array
 function say(...lines){ return new Promise(res=>{ dlg.queue=lines.flat().filter(Boolean); dlg.res=res; dlg.open=true; $('#dlg').hidden=false; nextLine(); }); }
 function whoName(w){ if(!w) return ''; const c=CAST[w]; return c?L(c[0]):''; }
 const pfEl=$('#dlg .pf'); let pfc=pfEl.getContext('2d');
-const PORTRAIT_IDX={meM:0,meF:1,luna:2,pita:3,boat:4,guide:5,vendor:6,boss:7};
+const PORTRAIT_IDX={}; ['meM','meF','luna','pita','boat','guide','vendor','boss','driver','kid','elder','chief','old','woman','woman2','rose','jimmy','store','bule','moses','farmer','willie','leiwia','nini'].forEach((k,i)=>{ if(ASSET_META.portraitSheets.includes(Math.floor(i/8))) PORTRAIT_IDX[k]=i; });
 function drawPortrait(key){ const k=key==='me'?(G.gender==='f'?'meF':'meM'):key; const i=PORTRAIT_IDX[k];
   if(i!=null&&imgOk('portraits')){ if(pfEl.width!==48){ pfEl.width=48; pfEl.height=48; pfc=pfEl.getContext('2d'); } pfc.imageSmoothingEnabled=false; pfc.clearRect(0,0,48,48); pfc.drawImage(IMG.portraits,i*48,0,48,48,0,0,48,48); return; }
   if(pfEl.width!==32){ pfEl.width=32; pfEl.height=32; pfc=pfEl.getContext('2d'); } drawFace(pfc,lookOf(key)); }

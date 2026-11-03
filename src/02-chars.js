@@ -26,6 +26,7 @@ const LOOK={
   willie:{skin:'#5a3622',hair:'#cfcac0',hs:'short',shirt:'#3b4b36',trim:'#c99a4b',pants:'#3a3a40',elder:true},
   leiwia:{skin:'#7b4a2c',hair:'#2a1a12',hs:'long',shirt:'#ff8a3a',trim:'#ffffff',dress:true,dots:true,flower:true},
   nini:{skin:'#6a3f25',hair:'#e0ddd6',hs:'bun',shirt:'#8a5ab8',trim:'#ffe066',dress:true,dots:true,elder:true},
+  kidG:{skin:'#7b4a2c',hair:'#16110f',hs:'curly',shirt:'#ff8ad1',trim:'#ffffff',dress:true,small:true},
   boss:{skin:'#e3b48c',hair:'#2a2a2a',hs:'short',shirt:'#4a5260',trim:'#d9453a',pants:'#2a2a2a',glasses:true,angry:true},
 };
 const CAST={luna:['Luna','luna'],pita:[t('คุณยาย Pita','Grandma Pita'),'pita'],driver:[t('คนขับแท็กซี่','Taxi driver'),'driver'],kid:[t('เด็กริมหาด','Beach kid'),'kid'],
@@ -38,15 +39,16 @@ const CAST={luna:['Luna','luna'],pita:[t('คุณยาย Pita','Grandma Pita
 function lookOf(id){ if(id==='me') return G.gender==='f'?LOOK.meF:LOOK.meM; return LOOK[id]; }
 function sh(lk){ if(!lk._s) lk._s={sk2:shade(lk.skin,-.22),sh2:shade(lk.shirt,-.28),sh3:shade(lk.shirt,.22),hr2:shade(lk.hair,.3),pa2:lk.pants?shade(lk.pants,-.3):null}; return lk._s; }
 
-const SPR_IDX=new Map([[LOOK.meM,0],[LOOK.meF,1],[LOOK.luna,2]]);
+const SPR_ORDER=['meM','meF','luna','driver','kid','vendor','elder','boat','guide','chief','old','woman','woman2','rose','jimmy','store','bule','moses','farmer','willie','leiwia','nini','pita','kidG'];
+const SPR_IDX=new Map(); SPR_ORDER.forEach((k,i)=>{ if(LOOK[k]&&ASSET_META.walkSheets.includes(Math.floor(i/3))) SPR_IDX.set(LOOK[k],i); });
 const SPR_ROW={down:0,left:1,right:2,up:3};
 let sprDark=null;
-function sprDarkSheet(){ if(sprDark) return sprDark; const c=document.createElement('canvas'); c.width=IMG.sprites.naturalWidth; c.height=IMG.sprites.naturalHeight; const g=c.getContext('2d'); g.drawImage(IMG.sprites,0,0); g.globalCompositeOperation='source-atop'; g.fillStyle='rgba(10,8,20,.75)'; g.fillRect(0,0,c.width,c.height); return sprDark=c; }
+function sprDarkSheet(){ if(sprDark) return sprDark; const c=document.createElement('canvas'); c.width=IMG.walk.naturalWidth; c.height=IMG.walk.naturalHeight; const g=c.getContext('2d'); g.drawImage(IMG.walk,0,0); g.globalCompositeOperation='source-atop'; g.fillStyle='rgba(10,8,20,.75)'; g.fillRect(0,0,c.width,c.height); return sprDark=c; }
 function drawChar(sx,sy,dir,frame,lk,dark){
   const si=SPR_IDX.get(lk);
-  if(si!=null&&imgOk('sprites')){ const ox=Math.floor(sx), oy=Math.floor(sy); const col=frame===1?1:frame===3?2:0;
+  if(si!=null&&imgOk('walk')){ const ox=Math.floor(sx), oy=Math.floor(sy); const col=frame===1?1:frame===3?2:0; const sh=Math.floor(si/3), k=si%3;
     ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(ox+3,oy+14,10,2); ctx.fillRect(ox+4,oy+15,8,1);
-    ctx.drawImage(dark?sprDarkSheet():IMG.sprites,(si*3+col)*20,SPR_ROW[dir]*27,20,27,ox-2,oy-11,20,27); return; }
+    ctx.drawImage(dark?sprDarkSheet():IMG.walk,(k*3+col)*20,sh*108+SPR_ROW[dir]*27,20,27,ox-2,oy-11,20,27); return; }
   const ox=Math.floor(sx), oy=Math.floor(sy)-4, flip=dir==='left', side=dir==='left'||dir==='right';
   const r=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(flip?ox+16-x-w:ox+x,oy+y,w,h); };
   const O=C.out, sk=lk.skin, shc=lk.shirt, hr=lk.hair, S=sh(lk);

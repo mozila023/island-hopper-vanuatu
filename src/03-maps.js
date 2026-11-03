@@ -125,7 +125,7 @@ function buildPentecost(){
   setT(tl,14,27,'.'); setT(tl,13,27,'.');
   for(let y=12;y<=16;y++) m.inter.push({x:13,y,fn:yamGarden});
   m.defs.push(()=>npc('bule',17,11,LOOK.bule,talkBule,{dir:'left'}),()=>npc('moses',21,11,LOOK.moses,talkMoses,{dir:'down'}),()=>npc('farmer',14,13,LOOK.farmer,yamGarden,{dir:'down'}),
-    ()=>npc('kid2',14,27,LOOK.kid,talkPikinini,{wander:true}));
+    ()=>npc('kid2',14,27,LOOK.kidG,talkPikinini,{wander:true}));
   return m;
 }
 function buildAmbrym(){

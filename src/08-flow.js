@@ -221,7 +221,7 @@ function check(){ const out=[]; for(const id in MAPS){ const m=MAPS[id]; const s
   if(m.spawn.pier&&!seen[m.spawn.pier.y][m.spawn.pier.x]) out.push(id+': pier spawn unreachable'); }
   return out; }
 applyLang();
-window.IHV={get busy(){return busyCount;},get mini(){return !!(scene&&scene.always);},get G(){return G;},P,MAPS,enterMap,run,travel,setScene,finale,showCard,setLang,check,get M(){return M;},randomEvent,arriveIsland,menuPick,uiReset:()=>{ menu.open=false; menu.res=null; $('#menu').hidden=true; $('#titleUI').hidden=true; }};
+window.IHV={get busy(){return busyCount;},get mini(){return !!(scene&&scene.always);},get G(){return G;},P,MAPS,enterMap,run,travel,setScene,finale,showCard,setLang,check,get M(){return M;},randomEvent,arriveIsland,menuPick,SC:{SwimScene,VolcanoScene,DanceScene,SwingScene,KnotScene,NagolScene,DrumScene,CanoeScene,VolcViewScene,RoomScene,FlightScene,TitleScene},hud,uiReset:()=>{ menu.open=false; menu.res=null; $('#menu').hidden=true; $('#titleUI').hidden=true; }};
 requestAnimationFrame(loop);
 titleFlow();
 })();

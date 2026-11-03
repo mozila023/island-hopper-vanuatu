@@ -78,9 +78,9 @@ function buildTanna(){
   rect(tl,15,13,1,3,'='); rect(tl,14,11,3,2,'.'); setT(tl,10,12,'='); rect(tl,17,11,1,5,'=');
   rect(tl,22,10,2,1,'a'); rect(tl,22,11,1,5,'='); rect(tl,24,12,1,1,'.');
   setT(tl,29,17,'.'); setT(tl,9,17,'.'); setT(tl,13,17,'.'); setT(tl,19,14,'.');
-  m.builds.push({type:'volcano',x:19,y:4,w:7,h:5},{type:'banyan',x:14,y:11,w:3,h:2},{type:'hut',x:9,y:9,w:3,h:3,door:{x:10,y:11},style:'village'},{type:'hut',x:16,y:8,w:3,h:3,door:{x:17,y:10},style:'village'},{type:'sign',x:23,y:10,w:1,h:1,label:'YASUR'});
+  m.builds.push({type:'volcano',x:19,y:4,w:7,h:5},{type:'banyan',x:14,y:11,w:3,h:2},{type:'sign',x:23,y:10,w:1,h:1,label:'YASUR'});
   lodge(m,25,13,'bungalow',5000,t('บังกะโลริมทะเล','Beach bungalow'));
-  m.inter.push({x:10,y:11,fn:villageHut},{x:17,y:10,fn:villageHut},{x:23,y:10,fn:talkGuide},{x:14,y:12,fn:talkOld},{x:16,y:12,fn:talkOld});
+  m.inter.push({x:23,y:10,fn:talkGuide},{x:14,y:12,fn:talkOld},{x:16,y:12,fn:talkOld});
   wharfDown(m,17,17);
   m.volcano={x:22.5,y:4.2};
   m.defs.push(()=>npc('driver2',9,17,LOOK.driver,talkDriver2,{dir:'up'}),()=>npc('guide',22,10,LOOK.guide,talkGuide,{dir:'down'}),()=>npc('chief',12,12,LOOK.chief,talkChief,{dir:'down'}),
@@ -91,8 +91,8 @@ function buildSanto(){
   const w=40,h=30,tl=grid(w,h,'~');
   ellipse(tl,20,13.5,18,12,'.',.1,41); shore(tl); scatter(tl,41,{palm:14,tree:7});
   ellipse(tl,13,7,7.5,4.6,'T',.25,4,true); for(let y=0;y<h;y++) for(let x=0;x<w;x++) if(tl[y][x]==='T'&&hash(x,y)%3===0) tl[y][x]=':';
-  ellipse(tl,13,7,5,3.2,'.',0,0,true); ellipse(tl,12.5,7.2,3.3,2.1,'B');
-  const m=mk('santo',w,h,tl,PAL_SANTO);
+  ellipse(tl,13,7,5,3.2,'.',0,0,true); ellipse(tl,12.5,7.2,3.4,2.2,'B');
+  const m=mk('santo',w,h,tl,PAL_SANTO); m.pool={cx:13,cy:7.7,rx:3.6,ry:2.5};
   airport(m,5,14,'PEKOA');
   rect(tl,7,17,27,1,'c');
   rect(tl,12,14,5,3,'.'); m.builds.push({type:'store',x:12,y:14,w:5,h:3,door:{x:14,y:16},label:'STOA'}); for(let x=12;x<=16;x++) m.inter.push({x,y:16,fn:santoStore});
@@ -156,7 +156,7 @@ function buildMalekula(){
   const m=mk('malekula',w,h,tl);
   airport(m,5,12,'LAMAP');
   rect(tl,7,16,22,1,'='); setT(tl,7,15,'=');
-  rect(tl,9,8,8,6,'.'); m.builds.push({type:'hut',x:10,y:9,w:3,h:3,door:{x:11,y:11},style:'village'}); m.inter.push({x:11,y:11,fn:villageHut});
+  rect(tl,9,8,8,6,'.');
   rect(tl,14,13,1,3,'=');
   lodge(m,19,12,'bungalow',5000,t('บังกะโลริมอ่าว','Bayside bungalow')); setT(tl,20,15,'=');
   let ws=24; for(let y=17;y<h;y++){ if(isWaterCh(tl[y][26])){ ws=y; break; } }
@@ -172,6 +172,12 @@ function finishMap(m){
   m.solid=grid(m.w,m.h,0);
   for(const b of m.builds){ if(b.solid===false) continue; for(let j=b.y;j<b.y+b.h;j++) for(let i=b.x;i<b.x+b.w;i++) if(m.solid[j]&&m.solid[j][i]!==undefined) m.solid[j][i]=1; }
   m.trees=[]; for(let y=0;y<m.h;y++) for(let x=0;x<m.w;x++){ const c=m.t[y][x]; if(c==='#'||c==='T') m.trees.push({x,y,c,h:hash(x,y)}); }
+  m.clearTrees=()=>{ const npcs=m.populate(); const busy=(x,y)=>m.inter.some(o=>o.x===x&&o.y===y)||npcs.some(n=>Math.abs(n.x-x)+Math.abs(n.y-y)<=1)||(m.spawn.airport&&m.spawn.airport.x===x&&m.spawn.airport.y===y);
+    const nearB=(x,y)=>m.builds.some(b=>b.solid!==false&&!b.flat&&x>=b.x-1&&x<=b.x+b.w&&y>=b.y-2&&y<=b.y+b.h);
+    const pathish=c=>c==='='||c==='c'||c==='R'||c==='p'||c==='d';
+    m.trees=m.trees.filter(tr=>{ const {x,y}=tr; const below=m.t[y+1]&&m.t[y+1][x];
+      const bad=nearB(x,y)||busy(x,y)||busy(x,y+1)||pathish(below)||[[1,0],[-1,0]].some(([dx,dy])=>pathish(m.t[y][x+dx])&&tr.c==='T');
+      if(bad){ m.t[y][x]=tr.c==='#'?',':'.'; return false; } return true; }); };
   m.ground=null; m.npcs=[]; m.populate=()=>m.defs.map(f=>f()).filter(Boolean);
   return m;
 }
@@ -208,7 +214,11 @@ function paintGround(m){
       case 'v': { const v=vnoise(px/24,py/12,10)*.7+vnoise(px/8,py/5,11)*.3; col=pal.mid[v+bay*.4>1.02?2:v+bay*.4>.58?0:1]; break; }
       case 'w': { const cs=Math.abs(Math.sin(px*.38+vnoise(px/8,py/8,12)*6)+Math.sin(py*.42+vnoise(px/7,py/9,13)*6)); col=pal.shal[cs+bay*.45<.42?2:(vnoise(px/12,py/12,14)>.5?0:1)]; break; }
       case 'o': { const cs=Math.abs(Math.sin(px*.5+vnoise(px/6,py/6,17)*5)); col=pal.pool[cs+bay*.4<.35?2:(vnoise(px/9,py/9,18)>.5?0:1)]; break; }
-      case 'B': { const k=bh[ty][tx]+(vnoise(px/6,py/6,19)-.5)*1.4+(bay-.5)*.6; col=pal.bh[k>1.2?0:k>.35?1:2]; break; }
+      case 'B': { const pl=m.pool; if(pl){ const ex=(px/16-pl.cx)/pl.rx, ey=(py/16-pl.cy)/pl.ry, dd=Math.sqrt(ex*ex+ey*ey)+(vnoise(px/5,py/5,23)-.5)*.12;
+          if(dd>1){ const v=vnoise(px/22,py/22,1)*.62+vnoise(px/6,py/6,2)*.38; col=pal.grass[clamp(Math.floor(v*3.4+(bay-.5)*1.1-.2),0,3)]; break; }
+          if(dd>.9){ col=[52,40,30]; break; } if(dd>.82){ col=[96,160,90]; break; }
+          const k=(1-dd)*3.2+(vnoise(px/6,py/6,19)-.5)*.9+(bay-.5)*.5; col=pal.bh[k>1.9?0:k>.7?1:2]; break; }
+        const k=bh[ty][tx]+(vnoise(px/6,py/6,19)-.5)*1.4+(bay-.5)*.6; col=pal.bh[k>1.2?0:k>.35?1:2]; break; }
       case 'W': col=[127,211,240]; break;
       default: col=pal.grass[1];
     }

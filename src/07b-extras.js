@@ -107,16 +107,20 @@ function screenFx(tm){
 
 /* ================= extra buildings & shops ================= */
 function placeB(m,type,fw,fh,zone,fn,o={}){
-  const occ=new Set(m.populate().map(n=>n.x+','+n.y)); const ok=(x,y)=>{ const c=m.t[y]&&m.t[y][x]; return (c==='.'||c===':'||c==='f')&&!m.solid[y][x]&&!occ.has(x+','+y); };
+  const occ=new Set(m.populate().map(n=>n.x+','+n.y)); const others=m.builds.filter(b=>!b.flat).map(spriteRect);
+  const npcR=m.populate().map(n=>({x0:n.x,x1:n.x+1,y0:n.y-.7,y1:n.y+1})); const ok=(x,y)=>{ const c=m.t[y]&&m.t[y][x]; return (c==='.'||c===':'||c==='f'||c==='T'||(c===','&&!o.noSand))&&!m.solid[y][x]&&!occ.has(x+','+y); };
   const walk=(x,y)=>{ const c=m.t[y]&&m.t[y][x]; return c&&!SOLID.has(c)&&!m.solid[y][x]&&!occ.has(x+','+y); };
   const [x0,x1,y0,y1]=zone; let best=null;
   for(let y=Math.max(1,y0);y<=y1-fh;y++) for(let x=Math.max(1,x0);x<=x1-fw;x++){
     let good=true; for(let j=-1;j<=fh&&good;j++) for(let i=-1;i<=fw&&good;i++){ const inF=j>=0&&j<fh&&i>=0&&i<fw; if(inF){ if(!ok(x+i,y+j)) good=false; } else if(m.solid[y+j]&&m.solid[y+j][x+i]) good=false; }
     if(!good) continue; const dx=x+Math.floor(fw/2); if(!walk(dx,y+fh)) continue;
     if(m.inter.some(q=>q.x>=x-1&&q.x<=x+fw&&q.y>=y-1&&q.y<=y+fh)) continue;
+    const cand=spriteRect({type,x,y,w:fw,h:fh,style:o.style,label:o.label}); const pad=.05, ov=r=>cand.x0-pad<r.x1&&cand.x1+pad>r.x0&&cand.y0-pad<r.y1&&cand.y1+pad>r.y0;
+    if(others.some(ov)||npcR.some(ov)) continue;
     const score=(o.near?Math.abs(x-o.near[0])+Math.abs(y-o.near[1]):0)+hash(x,y)%3; if(!best||score<best[2]) best=[x,y,score]; }
   if(!best) return null; const [x,y]=best;
-  const b={type,x,y,w:fw,h:fh,door:{x:x+Math.floor(fw/2),y:y+fh-1},label:o.label}; m.builds.push(b);
+  const b={type,x,y,w:fw,h:fh,door:{x:x+Math.floor(fw/2),y:y+fh-1},label:o.label,style:o.style}; m.builds.push(b);
+  for(let j=0;j<fh;j++) for(let i=0;i<fw;i++) if(m.t[y+j][x+i]==='T') m.t[y+j][x+i]='.';
   for(let j=0;j<fh;j++) for(let i=0;i<fw;i++) m.solid[y+j][x+i]=1;
   if(fn) for(let i=0;i<fw;i++) m.inter.push({x:x+i,y:y+fh-1,fn});
   if(o.light) m.lights.push({x:x+fw/2,y:y+fh-.8,r:24});
@@ -149,4 +153,56 @@ const XB=[
   ['pentecost','canteen',3,2,[13,24,24,33],canteen,{near:[17,25],light:1}],['pentecost','craft',3,2,[17,26,12,20],craftStall,{near:[20,15]}],
   ['ambrym','canteen',3,2,[6,30,20,27],canteen,{near:[14,21],light:1}],
   ['malekula','canteen',3,2,[6,30,17,25],canteen,{near:[16,18],light:1}],['malekula','copra',3,2,[3,30,2,15],copraShed,{near:[16,8]}],['malekula','craft',3,2,[16,34,6,16],craftStall,{near:[22,12]}]];
-for(const [isl,type,fw,fh,zone,fn,o] of XB){ placeB(MAPS[isl],type,fw,fh,zone,fn,o); }
+XB.push(['tanna','hut',3,3,[3,32,5,16],villageHut,{style:'village',near:[11,10]}],['tanna','hut',3,3,[3,33,3,26],villageHut,{style:'village',near:[27,9]}],['malekula','hut',3,3,[3,32,4,15],villageHut,{style:'village',near:[11,9]}]);
+for(const [isl,type,fw,fh,zone,fn,o] of XB){ const b=placeB(MAPS[isl],type,fw,fh,zone,fn,o); if(!b) console.warn('could not place',isl,type); }
+/* nudge NPCs that stand inside a building picture */
+for(const id in MAPS){ const m=MAPS[id]; const rects=m.builds.filter(b=>!b.flat&&!['volcano','volcano2','banyan'].includes(b.type)).map(spriteRect);
+  const ovl=(x,y)=>rects.some(r=>x+.1<r.x1&&x+.9>r.x0&&y-.6<r.y1&&y+1>r.y0);
+  const base=m.populate; const fix={};
+  const all=base(); const taken=new Set(all.map(n=>n.x+','+n.y));
+  for(const n of all){ if(!ovl(n.x,n.y)) continue; let best=null;
+    for(let r=1;r<=4&&!best;r++) for(let dy=-r;dy<=r&&!best;dy++) for(let dx=-r;dx<=r&&!best;dx++){ if(Math.max(Math.abs(dx),Math.abs(dy))!==r) continue; const x=n.x+dx,y=n.y+dy, c=m.t[y]&&m.t[y][x];
+      if(!c||SOLID.has(c)||m.solid[y][x]||taken.has(x+','+y)||ovl(x,y)||c==='p'||m.inter.some(o=>o.x===x&&o.y===y)) continue; best=[x,y]; }
+    if(best){ fix[n.id+'@'+n.x+','+n.y]=best; taken.add(best[0]+','+best[1]); } }
+  m.populate=()=>base().map(n=>{ const f=fix[n.id+'@'+n.x+','+n.y]; if(f){ n.x=n.hx=n.fx=f[0]; n.y=n.hy=n.fy=f[1]; } return n; }); }
+
+/* ================= layout cleanup: nothing overlaps or gets cut ================= */
+function spriteRect(b){ // tile-space rect of what is drawn for a building/object
+  const key=b.type==='hut'?(b.style||'village'):(b.type==='booth'&&b.label==='BOAT'?'ticket':b.type);
+  let r=null;
+  if(BIDX[key]!=null&&key!=='ticket') r=ASSET_META.buildings[BIDX[key]]; else if(B2IDX[key]!=null&&ASSET_META.buildings2) r=ASSET_META.buildings2[B2IDX[key]];
+  else if(b.type==='banyan') r=ASSET_META.nature[2]; else if(b.type==='tower') r=ASSET_META.nature[3];
+  else if(b.type==='volcano') r=ASSET_META.objs2[0]; else if(b.type==='volcano2') r=ASSET_META.objs2[1]; else if(b.type==='ropetree') r=ASSET_META.objs2[6];
+  if(!r) return {x0:b.x,x1:b.x+b.w,y0:b.y-1,y1:b.y+b.h};
+  const w=r[2]/SC/16, h=r[3]/SC/16, cxp=b.x+b.w/2, bot=b.y+b.h+(b.type==='volcano'||b.type==='volcano2'?10/16:2/16);
+  return {x0:cxp-w/2,x1:cxp+w/2,y0:bot-h,y1:bot}; }
+const LAYOUT_LOG=[];
+for(const id in MAPS){ const m=MAPS[id]; const pathy=c=>c==='='||c==='c'||c==='d'||c==='R'||c==='p';
+  const npcs=m.populate(); const rects=m.builds.filter(b=>!b.flat||b.type==='sanddraw').map(b=>({b,r:spriteRect(b)}));
+  const nearPath=(x,y)=>{ for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ const c=m.t[y+dy]&&m.t[y+dy][x+dx]; if(pathy(c)) return true; } return false; };
+  const treeRect=(x,y,palm)=>palm?{x0:x-.1,x1:x+1.1,y0:y-1.2,y1:y+1.05}:{x0:x-.1,x1:x+1.1,y0:y-.9,y1:y+1.05};
+  const hit=(a,b)=>a.x0<b.x1&&a.x1>b.x0&&a.y0<b.y1&&a.y1>b.y0;
+  let removed=0;
+  for(let y=0;y<m.h;y++) for(let x=0;x<m.w;x++){ const c=m.t[y][x]; if(c!=='T'&&c!=='#') continue;
+    const tr=treeRect(x,y,c==='#'); let bad=nearPath(x,y)||m.inter.some(o=>Math.abs(o.x-x)<=1&&Math.abs(o.y-y)<=1)||npcs.some(n=>Math.abs(n.x-x)<=1&&Math.abs(n.y-y)<=1)||rects.some(q=>hit(tr,q.r));
+    if(m.secrets) bad=bad||m.secrets.some(s=>Math.abs(s.x-x)<=1&&Math.abs(s.y-y)<=1);
+    if(bad){ m.t[y][x]=c==='#'?',':'.'; removed++; } }
+  for(const n of npcs){ const nr={x0:n.x+.1,x1:n.x+.9,y0:n.y-.7,y1:n.y+1}; for(const q of rects){ if(hit(nr,q.r)) LAYOUT_LOG.push(`${id}: npc ${n.id} overlaps ${q.b.type}${q.b.style?'/'+q.b.style:''}`); } }
+  for(let i=0;i<rects.length;i++) for(let j=i+1;j<rects.length;j++) if(hit(rects[i].r,rects[j].r)) LAYOUT_LOG.push(`${id}: ${rects[i].b.type}/${rects[i].b.style||rects[i].b.label||''} overlaps ${rects[j].b.type}/${rects[j].b.style||rects[j].b.label||''}`);
+  m.trees=[]; for(let y=0;y<m.h;y++) for(let x=0;x<m.w;x++){ const c=m.t[y][x]; if(c==='#'||c==='T') m.trees.push({x,y,c,h:hash(x,y)}); }
+  m.ground=null; LAYOUT_LOG.push(`${id}: removed ${removed} trees`);
+}
+function pixelOverlaps(){ const out=[]; const cache={};
+  const mask=(name,i)=>{ const k=name+i; if(cache[k]) return cache[k]; const r=ASSET_META[name][i]; const c=document.createElement('canvas'); c.width=r[2]; c.height=r[3]; const g=c.getContext('2d'); g.drawImage(IMG[name],r[0],r[1],r[2],r[3],0,0,r[2],r[3]); return cache[k]={d:g.getImageData(0,0,r[2],r[3]).data,w:r[2],h:r[3]}; };
+  const info=b=>{ const key=b.type==='hut'?(b.style||'village'):(b.type==='booth'&&b.label==='BOAT'?'ticket':b.type);
+    if(BIDX[key]!=null&&key!=='ticket') return ['buildings',BIDX[key]]; if(B2IDX[key]!=null) return ['buildings2',B2IDX[key]]; if(b.type==='banyan') return ['nature',2]; if(b.type==='tower') return ['nature',3]; if(b.type==='volcano') return ['objs2',0]; if(b.type==='volcano2') return ['objs2',1]; if(b.type==='ropetree') return ['objs2',6]; return null; };
+  for(const id in MAPS){ const m=MAPS[id]; const items=[];
+    for(const b of m.builds){ const inf=info(b); if(!inf) continue; const r=spriteRect(b); items.push({name:`${b.type}/${b.style||b.label||''}`,r,mk:mask(...inf),solidish:true}); }
+    for(const n of m.populate()){ items.push({name:'npc '+n.id,r:{x0:n.x+.15,x1:n.x+.85,y0:n.y-.6,y1:n.y+1},mk:null}); }
+    const opaque=(it,X,Y)=>{ if(!it.mk) return X>=it.r.x0&&X<it.r.x1&&Y>=it.r.y0&&Y<it.r.y1; const u=Math.floor((X-it.r.x0)/(it.r.x1-it.r.x0)*it.mk.w), v=Math.floor((Y-it.r.y0)/(it.r.y1-it.r.y0)*it.mk.h); if(u<0||v<0||u>=it.mk.w||v>=it.mk.h) return false; return it.mk.d[(v*it.mk.w+u)*4+3]>0; };
+    for(let i=0;i<items.length;i++) for(let j=i+1;j<items.length;j++){ const a=items[i].r,b=items[j].r; const x0=Math.max(a.x0,b.x0),x1=Math.min(a.x1,b.x1),y0=Math.max(a.y0,b.y0),y1=Math.min(a.y1,b.y1); if(x0>=x1||y0>=y1) continue; let n=0;
+      for(let Y=y0;Y<y1;Y+=1/32) for(let X=x0;X<x1;X+=1/32) if(opaque(items[i],X,Y)&&opaque(items[j],X,Y)) n++;
+      if(n>6) out.push(`${id}: ${items[i].name} x ${items[j].name} = ${n}px`); } }
+  return out; }
+
+for(const id in MAPS){ MAPS[id].clearTrees(); MAPS[id].ground=null; }

@@ -47,7 +47,7 @@ const MapScene={
   },
   draw(tm){
     const ppx=snap(lerp(P.fx,P.x,P.prog)*16), ppy=snap(lerp(P.fy,P.y,P.prog)*16);
-    const cx=snap(clamp(ppx+8-W/2,0,M.w*16-W)), cy=snap(clamp(ppy+8-H/2,0,M.h*16-H));
+    let cx=snap(clamp(ppx+8-W/2,0,M.w*16-W)), cy=snap(clamp(ppy+8-H/2,0,M.h*16-H)); if(window.__cam){ cx=window.__cam[0]; cy=window.__cam[1]; }
     ctx.drawImage(groundOf(M),cx*SC,cy*SC,W*SC,H*SC,0,0,W,H);
     animTiles(cx,cy,tm);
     const list=[], vis=(px,py,m)=>px>-m&&px<W+m&&py>-m&&py<H+m+16;
@@ -55,7 +55,7 @@ const MapScene={
     for(const b of M.builds){ const sx=b.x*16-cx, sy=b.y*16-cy; if(sx>W+60||sy>H+60||sx+b.w*16<-60||sy+b.h*16<-90) continue; list.push({y:b.flat?b.y*16:(b.y+b.h)*16-1,d:()=>drawBuild(b,cx,cy,tm)}); }
     for(const n of M.npcs){ const nx=lerp(n.fx,n.x,n.prog)*16, ny=lerp(n.fy,n.y,n.prog)*16; if(vis(nx-cx,ny-cy,20)) list.push({y:ny+15.5,d:()=>drawChar(nx-cx,ny-cy,n.dir,n.prog<1?(Math.floor(n.prog*4)%4):0,n.look)}); }
     list.push({y:ppy+15.6,d:()=>drawChar(ppx-cx,ppy-cy,P.dir,P.moving?(Math.floor(P.walkT*8)%4):0,lookOf('me'))});
-    list.sort((a,b)=>a.y-b.y); for(const o of list) o.d();
+    list.sort((a,b)=>a.y-b.y); for(const o of list) o.d(); flushLabels();
     worldFx(cx,cy,tm);
     ambientDraw(tm,cx,cy);
     if(!P.moving&&busyCount===0&&!uiOpen()&&facing()){ const bx=Math.round(ppx-cx)+4, by=Math.round(ppy-cy)-16+Math.round(Math.sin(tm*6)); R(bx-1,by-1,10,9,C.out); R(bx,by,8,7,'#ffffff'); ptext(ctx,'A',bx+3,by+1,'#c4513a'); R(bx+3,by+8,2,2,C.out); }

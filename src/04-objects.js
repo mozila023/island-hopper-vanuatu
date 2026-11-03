@@ -1,7 +1,7 @@
 /* ---------------- world objects ---------------- */
 function shadowE(x,y,w,h,a=.22){ ctx.fillStyle=`rgba(10,30,20,${a})`; for(let i=0;i<h;i++){ const q=1-Math.abs((i-(h-1)/2)/(h/2)); const ww=Math.round(w*Math.sqrt(Math.max(0,q))); ctx.fillRect(Math.floor(x-ww/2),Math.floor(y+i),ww,1); } }
 function drawPalm(sx,sy,h,tm){
-  if(imgOk('nature')){ shadowE(sx+11,sy+13,20,5,.2); atlasDraw('nature',0,sx+8,sy+17,h%2===1); return; }
+  if(imgOk('nature')){ shadowE(sx+9,sy+14,14,4,.2); atlasDraw('nature',0,sx+8,sy+17,h%2===1,20); return; }
   const lean=(h%3)-1;
   shadowE(sx+12+lean*4,sy+13,22,5,.2);
   for(let i=0;i<24;i++){ const y=sy+15-i, x=sx+6+Math.round(lean*4*(i/24)*(i/24)); R(x-1,y,5,1,C.out); R(x,y,3,1,i%4===0?C.trunk2:C.trunk); R(x,y,1,1,i%4===0?C.trunk2:'#c08a52'); }
@@ -12,7 +12,7 @@ function drawPalm(sx,sy,h,tm){
   R(tx-2,ty+1,3,3,'#6b4a26'); R(tx+1,ty+2,3,3,'#7d5730'); R(tx-1,ty+1,1,1,'#a07a4a');
 }
 function drawJTree(sx,sy,h){
-  if(imgOk('nature')){ shadowE(sx+9,sy+12,22,6,.22); atlasDraw('nature',1,sx+8,sy+17,h%2===1); return; }
+  if(imgOk('nature')){ shadowE(sx+8,sy+14,16,4,.22); atlasDraw('nature',1,sx+8,sy+17,h%2===1,20); return; }
   shadowE(sx+9,sy+12,22,6,.22);
   R(sx+5,sy+6,6,10,C.out); R(sx+6,sy+6,4,9,C.trunk2); R(sx+6,sy+6,1,9,C.trunk);
   blob(ctx,sx+8,sy+1,10,C.out); blob(ctx,sx+8,sy+1,9,'#245f2d'); blob(ctx,sx+7+(h%3),sy-1,7,'#2f7a33'); blob(ctx,sx+6+(h%3),sy-2,5,'#3f9a40'); blob(ctx,sx+5+(h%2),sy-4,3,'#62c357');
@@ -114,28 +114,32 @@ function drawTower(X,Y,w,h,tm){
   R(cxm-1,topY-10,2,8,C.out); R(cxm,topY-10,4,3,'#d9453a');
 }
 function drawTamtam(X,Y,w,h){
-  shadowE(X+w/2,Y+h-3,w+8,6,.25);
-  const ds=[[X+3,Y-18,10,34],[X+18,Y-26,12,42],[X+34,Y-14,10,30]];
-  for(const [x,y,ww,hh] of ds){ R(x-1,y-1,ww+2,hh+2,C.out); R(x,y,ww,hh,'#7a4e2c'); R(x,y,2,hh,'#94643a'); R(x+ww-2,y,2,hh,'#5e3c22');
-    R(x+2,y+4,ww-4,3,C.out); R(x+3,y+5,2,1,'#ffffff'); R(x+ww-5,y+5,2,1,'#ffffff');
-    R(x+3,y+9,ww-6,2,'#3a2414'); R(x+ww/2-1,y+12,2,hh-16,C.out); R(x+2,y+hh-6,ww-4,1,'#d9453a'); }
+  const ds=[[X+2,Y-16,11,38],[X+17,Y-28,13,50],[X+34,Y-12,11,34]];
+  for(const [x,y,ww,hh] of ds) shadowE(x+ww/2+2,y+hh-2,ww+6,4,.28);
+  for(const [x,y,ww,hh] of ds){
+    for(let j=0;j<hh;j++){ const taper=j<3?3-j:0; R(x-1+taper,y+j,ww+2-taper*2,1,C.out); R(x+taper,y+j,ww-taper*2,1,j%7===3?'#6e4628':'#7d5131'); R(x+taper,y+j,2,1,'#9a6a40'); R(x+ww-2-taper,y+j,2,1,'#5a3820'); }
+    const ex=[x+2,x+ww-5], ey=y+7; for(const e of ex){ blob(ctx,e+1.5,ey,2.5,C.out); blob(ctx,e+1.5,ey,1.6,'#e8dcc0'); R(e+1,ey,1,1,C.out); }
+    R(x+ww/2-2,y+11,4,2,'#5a3820'); R(x+ww/2-1,y+15,2,hh-21,C.out); R(x+ww/2-1,y+15,1,hh-21,'#2a1810');
+    for(let j=y+hh-6;j<y+hh-2;j+=2) R(x+1,j,ww-2,1,'#5a3820'); }
 }
 function drawRopeTree(X,Y,tm){
   drawJTree(X,Y,7);
   const sw=Math.sin(tm*1.6)*4; pline(ctx,X+12,Y+2,X+14+sw,Y+26,'#c8a24a'); R(X+12+sw,Y+26,5,2,C.out);
 }
 function drawSandMini(X,Y){ ctx.drawImage(sandCanvas(32,16,true),X,Y); }
-function atlasDraw(name,i,cxp,bottom,flip){ const r=ASSET_META[name][i]; const w=r[2]/SC, h=r[3]/SC; const x=snap(cxp-w/2), y=snap(bottom-h);
+function atlasDraw(name,i,cxp,bottom,flip,maxW){ const r=ASSET_META[name][i]; let w=r[2]/SC, h=r[3]/SC; if(maxW&&w>maxW){ h=h*maxW/w; w=maxW; } const x=snap(cxp-w/2), y=snap(bottom-h);
   if(flip){ ctx.save(); ctx.translate(x+w,y); ctx.scale(-1,1); ctx.drawImage(IMG[name],r[0],r[1],r[2],r[3],0,0,w,h); ctx.restore(); } else ctx.drawImage(IMG[name],r[0],r[1],r[2],r[3],x,y,w,h); return {x,y,w,h}; }
 const BIDX={tama:0,nakamal:1,village:2,bungalow:3,airport:4,market:5,store:6,booth:7};
-function plate(label,cxp,y,bg,fg){ const lw=ptw(label)+6; R(cxp-lw/2,y,lw,9,C.out); R(cxp-lw/2+1,y+1,lw-2,7,bg); ptext(ctx,label,cxp-lw/2+3,y+2,fg); }
+const LABELS=[];
+function plate(label,cxp,y,bg,fg){ LABELS.push(()=>{ const lw=ptw(label)+6; R(cxp-lw/2,y,lw,9,C.out); R(cxp-lw/2+1,y+1,lw-2,7,bg); ptext(ctx,label,cxp-lw/2+3,y+2,fg); }); }
+function flushLabels(){ for(const f of LABELS) f(); LABELS.length=0; }
 const B2IDX={ticket:0,canteen:1,craft:2,guest:3,copra:4,resto:5,busstop:6,shed:7};
 function drawBuildArt(b,X,Y,w,h,tm){
   const key=b.type==='hut'?(b.style||'village'):(b.type==='booth'&&b.label==='BOAT'?'ticket':b.type); let atlas='buildings', i=BIDX[key];
   if(i==null||key==='ticket'){ i=B2IDX[key]; atlas='buildings2'; }
   if(i==null||!imgOk(atlas)||!ASSET_META[atlas]||!ASSET_META[atlas][i]) return false;
   const cxp=X+w/2; shadowE(cxp+3,Y+h-4,w+10,7,.25);
-  const r=atlasDraw(atlas,i,cxp,Y+h+2);
+  const r=atlasDraw(atlas,i,cxp,Y+h+1,false,w+4);
   if(b.label){ if(b.type==='airport') plate(b.label,cxp,r.y+r.h-38,'#1f4d86','#ffffff'); else if(b.type==='market') plate(b.label,cxp,r.y-4,'#ffd84d',C.out); else plate(b.label,cxp,r.y-2,b.type==='booth'?'#ffd84d':'#d9453a',b.type==='booth'?C.out:'#ffffff'); }
   return true; }
 function volcFx(x,y,tm,night){ for(let i=0;i<5;i++){ const ph=(tm*.18+i/5)%1, sx=x+Math.sin(ph*5+i)*4+ph*14, sy=y-4-ph*40, rr=Math.round(3+ph*8); blob(ctx,sx,sy,rr,`rgba(${night?120:200},${night?110:195},${night?120:200},${(1-ph)*.6})`); }
@@ -147,7 +151,7 @@ function drawBuild(b,cx,cy,tm){
   if(imgOk('objs2')){
     if(b.type==='volcano'){ const r=atlasDraw('objs2',0,X+w/2,Y+h+10); volcFx(X+w/2-4,r.y+14,tm,G.slot>=2); return; }
     if(b.type==='volcano2'){ const r=atlasDraw('objs2',1,X+w/2,Y+h+10); volcFx(X+w/2-38,r.y+30,tm,G.slot>=2); volcFx(X+w/2+30,r.y+20,tm+2,G.slot>=2); return; }
-    if(b.type==='sign'){ shadowE(X+8,Y+15,14,3,.22); const r=atlasDraw('objs2',4,X+8,Y+17); const lw=Math.max(14,ptw(b.label)+6); R(X+8-lw/2,r.y+2,lw,9,C.out); R(X+9-lw/2,r.y+3,lw-2,7,'#a26b3a'); ptext(ctx,b.label,X+11-lw/2,r.y+4,'#fff3d0'); return; }
+    if(b.type==='sign'){ shadowE(X+8,Y+15,14,3,.22); const r=atlasDraw('objs2',4,X+8,Y+17); plate(b.label,X+8,r.y+1,'#a26b3a','#fff3d0'); return; }
     if(b.type==='postsign'){ const bob=Math.round(Math.sin(tm*2)); atlasDraw('objs2',5,X+8,Y+18+bob); return; }
     if(b.type==='ropetree'){ shadowE(X+10,Y+13,30,6,.22); atlasDraw('objs2',6,X+8,Y+18); return; }
   }

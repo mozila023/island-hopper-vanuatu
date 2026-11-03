@@ -17,7 +17,7 @@ def segs(v,n):
     out=[o for o in out if o[1]-o[0]>40]
     return out[:n]
 cs=segs(white.mean(axis=0),4); rs=segs(white.mean(axis=1),2); print(cs,rs)
-out=Image.new('RGB',(SZ*8,48))
+out=Image.new('RGB',(SZ*8,SZ))
 k=0
 for (y0,y1) in rs:
   for (x0,x1) in cs:

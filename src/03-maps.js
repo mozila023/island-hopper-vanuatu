@@ -176,7 +176,8 @@ function finishMap(m){
     const nearB=(x,y)=>m.builds.some(b=>b.solid!==false&&!b.flat&&x>=b.x-1&&x<=b.x+b.w&&y>=b.y-2&&y<=b.y+b.h);
     const pathish=c=>c==='='||c==='c'||c==='R'||c==='p'||c==='d';
     m.trees=m.trees.filter(tr=>{ const {x,y}=tr; const below=m.t[y+1]&&m.t[y+1][x];
-      const bad=nearB(x,y)||busy(x,y)||busy(x,y+1)||pathish(below)||[[1,0],[-1,0]].some(([dx,dy])=>pathish(m.t[y][x+dx])&&tr.c==='T');
+      const side=[[1,0],[-1,0],[1,1],[-1,1]].some(([dx,dy])=>pathish(m.t[y+dy]&&m.t[y+dy][x+dx])||busy(x+dx,y+dy));
+      const bad=nearB(x,y)||nearB(x-1,y)||nearB(x+1,y)||busy(x,y)||busy(x,y+1)||pathish(below)||side;
       if(bad){ m.t[y][x]=tr.c==='#'?',':'.'; return false; } return true; }); };
   m.ground=null; m.npcs=[]; m.populate=()=>m.defs.map(f=>f()).filter(Boolean);
   return m;

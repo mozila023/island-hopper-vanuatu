@@ -1,7 +1,7 @@
 /* ---------------- world objects ---------------- */
 function shadowE(x,y,w,h,a=.22){ ctx.fillStyle=`rgba(10,30,20,${a})`; for(let i=0;i<h;i++){ const q=1-Math.abs((i-(h-1)/2)/(h/2)); const ww=Math.round(w*Math.sqrt(Math.max(0,q))); ctx.fillRect(Math.floor(x-ww/2),Math.floor(y+i),ww,1); } }
 function drawPalm(sx,sy,h,tm){
-  if(imgOk('nature')){ shadowE(sx+9,sy+14,14,4,.2); atlasDraw('nature',0,sx+8,sy+17,h%2===1,20); return; }
+  if(imgOk('nature')){ shadowE(sx+12,sy+14,30,6,.22); const sw=Math.sin(tm*1.2+h)*.4; atlasDraw('nature',0,sx+8+sw,sy+17,h%2===1); return; }
   const lean=(h%3)-1;
   shadowE(sx+12+lean*4,sy+13,22,5,.2);
   for(let i=0;i<24;i++){ const y=sy+15-i, x=sx+6+Math.round(lean*4*(i/24)*(i/24)); R(x-1,y,5,1,C.out); R(x,y,3,1,i%4===0?C.trunk2:C.trunk); R(x,y,1,1,i%4===0?C.trunk2:'#c08a52'); }
@@ -12,7 +12,7 @@ function drawPalm(sx,sy,h,tm){
   R(tx-2,ty+1,3,3,'#6b4a26'); R(tx+1,ty+2,3,3,'#7d5730'); R(tx-1,ty+1,1,1,'#a07a4a');
 }
 function drawJTree(sx,sy,h){
-  if(imgOk('nature')){ shadowE(sx+8,sy+14,16,4,.22); atlasDraw('nature',1,sx+8,sy+17,h%2===1,20); return; }
+  if(imgOk('nature')){ shadowE(sx+9,sy+14,34,7,.24); atlasDraw('nature',1,sx+8,sy+17,h%2===1); return; }
   shadowE(sx+9,sy+12,22,6,.22);
   R(sx+5,sy+6,6,10,C.out); R(sx+6,sy+6,4,9,C.trunk2); R(sx+6,sy+6,1,9,C.trunk);
   blob(ctx,sx+8,sy+1,10,C.out); blob(ctx,sx+8,sy+1,9,'#245f2d'); blob(ctx,sx+7+(h%3),sy-1,7,'#2f7a33'); blob(ctx,sx+6+(h%3),sy-2,5,'#3f9a40'); blob(ctx,sx+5+(h%2),sy-4,3,'#62c357');

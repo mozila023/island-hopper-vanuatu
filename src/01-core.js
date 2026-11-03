@@ -1,5 +1,7 @@
 (()=>{
 'use strict';
+const IMG={}; for(const k in ASSET_SRC){ const im=new Image(); im.src=ASSET_SRC[k]; IMG[k]=im; }
+const imgOk=k=>IMG[k]&&IMG[k].complete&&IMG[k].naturalWidth>0;
 const W=240,H=160;
 const cvs=document.getElementById('game'), ctx=cvs.getContext('2d');
 ctx.imageSmoothingEnabled=false;

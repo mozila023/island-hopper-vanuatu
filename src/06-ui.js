@@ -7,9 +7,13 @@ const segmenter=(window.Intl&&Intl.Segmenter)?new Intl.Segmenter(undefined,{gran
 const graphemes=s=>segmenter?Array.from(segmenter.segment(s),x=>x.segment):Array.from(s);
 function say(...lines){ return new Promise(res=>{ dlg.queue=lines.flat().filter(Boolean); dlg.res=res; dlg.open=true; $('#dlg').hidden=false; nextLine(); }); }
 function whoName(w){ if(!w) return ''; const c=CAST[w]; return c?L(c[0]):''; }
-const pfc=$('#dlg .pf').getContext('2d');
+const pfEl=$('#dlg .pf'); let pfc=pfEl.getContext('2d');
+const PORTRAIT_IDX={meM:0,meF:1,luna:2,pita:3,boat:4,guide:5,vendor:6,boss:7};
+function drawPortrait(key){ const k=key==='me'?(G.gender==='f'?'meF':'meM'):key; const i=PORTRAIT_IDX[k];
+  if(i!=null&&imgOk('portraits')){ if(pfEl.width!==48){ pfEl.width=48; pfEl.height=48; pfc=pfEl.getContext('2d'); } pfc.imageSmoothingEnabled=false; pfc.clearRect(0,0,48,48); pfc.drawImage(IMG.portraits,i*48,0,48,48,0,0,48,48); return; }
+  if(pfEl.width!==32){ pfEl.width=32; pfEl.height=32; pfc=pfEl.getContext('2d'); } drawFace(pfc,lookOf(key)); }
 function nextLine(){ const ln=dlg.queue.shift(); if(!ln){ dlg.open=false; $('#dlg').hidden=true; const r=dlg.res; dlg.res=null; r&&r(); return; } dlg.cur=ln; dlg.segs=graphemes(L(ln.t)); dlg.shown=0; dlg.acc=0;
-  const c=ln.who&&CAST[ln.who]; $('#dlg').classList.toggle('face',!!c); if(c) drawFace(pfc,lookOf(c[1])); renderDlg(); }
+  const c=ln.who&&CAST[ln.who]; $('#dlg').classList.toggle('face',!!c); if(c) drawPortrait(c[1]); renderDlg(); }
 function renderDlg(){ $('#dlg .who').textContent=whoName(dlg.cur.who); $('#dlg .txt').textContent=dlg.segs.slice(0,dlg.shown).join(''); $('#dlg .more').style.visibility=dlg.shown>=dlg.segs.length?'visible':'hidden'; }
 function dlgAdvance(){ if(!dlg.open) return; if(dlg.shown<dlg.segs.length){ dlg.shown=dlg.segs.length; renderDlg(); } else { sfx.sel(); nextLine(); } }
 function dlgUpdate(dt){ if(dlg.shown<dlg.segs.length){ dlg.acc+=dt*(keys.a||keys.b?110:42); const n=Math.floor(dlg.acc); if(n>0){ dlg.acc-=n; const before=dlg.shown; dlg.shown=Math.min(dlg.segs.length,dlg.shown+n); if(Math.floor(before/2)!==Math.floor(dlg.shown/2)) sfx.blip(); renderDlg(); } } if(consume('a')||consume('b')) dlgAdvance(); }

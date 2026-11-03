@@ -109,6 +109,11 @@ function gradCanvas(key,stops){ if(skyCache[key]) return skyCache[key]; const c=
   const d=g.getImageData(0,0,1,H); for(let i=0;i<d.data.length;i++) d.data[i]=Math.round(d.data[i]/10)*10; g.putImageData(d,0,0); return skyCache[key]=c; }
 function silPalm(px,base,col,tm,sc=1){ for(let i=0;i<20*sc;i++) R(px+Math.round(i*i*.01/sc),base-i,2,1,col); for(const a of [-2.6,-.5,-1.6,2.6,.5]) for(let k=1;k<9*sc;k++) R(px+Math.round(20*sc*20*sc*.01/sc)+Math.cos(a+Math.sin(tm+px)*.05)*k*1.4,base-20*sc+Math.sin(a)*k+k*k*.08,3,2,col); }
 const TitleScene={ draw(tm){
+  if(imgOk('title')){ ctx.drawImage(IMG.title,0,0);
+    for(let i=0;i<10;i++){ const q=hash(i,51); const x=150+(q%30), y=118+((q>>6)%30); if(Math.sin(tm*3+i*1.9)>.55) R(x,y,2,1,'#fff6d0'); }
+    for(let i=0;i<4;i++){ const ph=(tm*.12+i/4)%1; blob(ctx,52+ph*14+Math.sin(ph*6)*2,70-ph*26,Math.round(2+ph*5),`rgba(230,190,200,${(1-ph)*.45})`); }
+    for(let i=0;i<3;i++){ const bx=(tm*10+i*90)%280-20, by=36+i*8+Math.sin(tm*2+i)*2; R(bx,by,2,1,'#3a2a50'); R(bx+2,by-1,1,1,'#3a2a50'); R(bx-1,by-1,1,1,'#3a2a50'); }
+    return; }
   ctx.drawImage(gradCanvas('title',[[0,'#1d2763'],[.42,'#c85a6a'],[.6,'#f7a35c'],[.61,'#2c5fa6'],[1,'#173d73']]),0,0,W,H);
   for(let i=0;i<20;i++){ const q=hash(i,44); if(Math.sin(tm*2+i)>-.3) R(q%W,(q>>8)%40,1,1,'rgba(255,255,255,.7)'); }
   blob(ctx,176,98,20,'#ffd27a'); blob(ctx,176,98,16,'#ffe9a6'); R(150,98,60,62,'#2c5fa6');

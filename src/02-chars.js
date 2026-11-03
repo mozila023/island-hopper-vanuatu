@@ -38,7 +38,15 @@ const CAST={luna:['Luna','luna'],pita:[t('คุณยาย Pita','Grandma Pita
 function lookOf(id){ if(id==='me') return G.gender==='f'?LOOK.meF:LOOK.meM; return LOOK[id]; }
 function sh(lk){ if(!lk._s) lk._s={sk2:shade(lk.skin,-.22),sh2:shade(lk.shirt,-.28),sh3:shade(lk.shirt,.22),hr2:shade(lk.hair,.3),pa2:lk.pants?shade(lk.pants,-.3):null}; return lk._s; }
 
+const SPR_IDX=new Map([[LOOK.meM,0],[LOOK.meF,1],[LOOK.luna,2]]);
+const SPR_ROW={down:0,left:1,right:2,up:3};
+let sprDark=null;
+function sprDarkSheet(){ if(sprDark) return sprDark; const c=document.createElement('canvas'); c.width=IMG.sprites.naturalWidth; c.height=IMG.sprites.naturalHeight; const g=c.getContext('2d'); g.drawImage(IMG.sprites,0,0); g.globalCompositeOperation='source-atop'; g.fillStyle='rgba(10,8,20,.75)'; g.fillRect(0,0,c.width,c.height); return sprDark=c; }
 function drawChar(sx,sy,dir,frame,lk,dark){
+  const si=SPR_IDX.get(lk);
+  if(si!=null&&imgOk('sprites')){ const ox=Math.floor(sx), oy=Math.floor(sy); const col=frame===1?1:frame===3?2:0;
+    ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(ox+3,oy+14,10,2); ctx.fillRect(ox+4,oy+15,8,1);
+    ctx.drawImage(dark?sprDarkSheet():IMG.sprites,(si*3+col)*20,SPR_ROW[dir]*27,20,27,ox-2,oy-11,20,27); return; }
   const ox=Math.floor(sx), oy=Math.floor(sy)-4, flip=dir==='left', side=dir==='left'||dir==='right';
   const r=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(flip?ox+16-x-w:ox+x,oy+y,w,h); };
   const O=C.out, sk=lk.skin, shc=lk.shirt, hr=lk.hair, S=sh(lk);
